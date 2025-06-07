@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         //
+           $middleware->alias([
+        'verify.jwt' => \App\Http\Middleware\VerifyToken::class,
+    ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
