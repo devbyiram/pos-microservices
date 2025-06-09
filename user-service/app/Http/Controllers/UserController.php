@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -19,12 +20,14 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
+            'store_id' => 'required|array', // store IDs for pivot table
+            'store_id.*' => 'exists:stores,id'
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
-        User::create($validated);
-
-        return response()->json(['message' => 'User created successfully'], 201);
+        $user = User::create($validated);
+        $user->stores()->attach($validated['store_id']);
+        return response()->json(['message' => 'User created successfully','user' => $user->load('stores')], 201);
     }
 
     // GET /users/{id}
