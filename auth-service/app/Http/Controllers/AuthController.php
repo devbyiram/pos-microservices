@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +34,7 @@ class AuthController extends Controller
                 'sub' => $user->id,                   // Subject (user ID)
                 'email' => $user->email,
                 'iat' => time(),                      // Issued at
-                'exp' => time() + 3600,               // Expires in 1 hour
+                'exp' => time() + (60 * 60 * 24),               // Expires in 1 day
             ];
 
             $jwt = JWT::encode($payload, $privateKey, 'RS256');
@@ -55,9 +56,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-   public function dashboard()
+    public function dashboard()
     {
         return response()->json(['here' => 'is me']);
-
     }
 }
