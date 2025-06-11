@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+           Http::macro('internal', function () {
+        return Http::withHeaders([
+            'X-Internal-Secret' => config('services.api_gateway.secret'),
+        ]);
+    });
     }
 }
