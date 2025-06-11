@@ -1,42 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Cookie;
+use App\Http\Controllers\LoginController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-// Route::get('/dashboard', function () {
-//     return view('dashboard.index');
-// })->name('dashboard');
+
 
    Route::get('login', function(){
      return view('auth.login');
  })->middleware('check.jwt');
 
-  Route::get('/dashboard', function () {
-        return view('dashboard.index');
-    });
-    // Route::group(['middleware' => 'guest'],function(){
-
-        // Route::controller(LoginController::class)->group(function () {
-        //     Route::get('login','index')->name(name:'login');
-        //     Route::post('authenticate', 'authenticate')->name(name:'authenticate');
-        // });
-
-    // });
-
-// Route::middleware('check.jwt')->group(function () {
-  
-//     Route::get('/dashboard', function () {
-//         return view('dashboard.index');
-//     });
-// });
-
+  Route::get('/dashboard', function () { 
+      return view('dashboard.index');
+  })->middleware('require.jwt');
 
     
-
 Route::post('/store-token', function (Request $request) {
     $token = $request->input('token');
 
@@ -44,3 +26,11 @@ Route::post('/store-token', function (Request $request) {
         'jwt_token', $token, 60*60*24 , '/', null, false, true, false, 'Strict'
     );
 });
+
+    Route::get('/logout', function () {
+    return redirect('/login')->with('success', 'Logged out successfully.')->cookie(
+        Cookie::forget('jwt_token')
+    );
+})->name('logout');
+
+

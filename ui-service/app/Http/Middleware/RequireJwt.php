@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckJwtToken
+class RequireJwt
 {
     /**
      * Handle an incoming request.
@@ -14,13 +14,12 @@ class CheckJwtToken
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-
     {
-       $token = $request->cookie('jwt_token');
-    if ($token) {
-        return redirect('/dashboard');
-    }
+        $token = $request->cookie('jwt_token');
 
-    return $next($request);
+        if (!$token) {
+            return redirect('/login')->with('error', 'Please log in first.');
+        }
+        return $next($request);
     }
 }

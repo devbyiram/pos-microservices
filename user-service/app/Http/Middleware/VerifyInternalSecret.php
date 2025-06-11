@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckJwtToken
+class VerifyInternalSecret
 {
     /**
      * Handle an incoming request.
@@ -14,13 +14,13 @@ class CheckJwtToken
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-
     {
-       $token = $request->cookie('jwt_token');
-    if ($token) {
-        return redirect('/dashboard');
-    }
-
-    return $next($request);
+        $expectedSecret = config('services.api_gateway.secret');
+        $incomingSecret = $request->header('X-Internal-Secret');
+    
+        if ($incomingSecret !== $expectedSecret) {
+            return response()->json(['error' => 'Unauthorized access'], 403);
+        }
+        return $next($request);
     }
 }

@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'api_gateway' => [
+        'secret' => env('INTERNAL_API_SECRET'),
+    ],
 
 ];
