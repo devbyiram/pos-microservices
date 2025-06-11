@@ -9,25 +9,33 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 // Login just forwards request to Auth Service
+// Route::post('/auth/login', function (Request $request) {
+//     Log::info('API Gateway received login request', $request->all());
+
+//     try {
+//         $response = Http::timeout(10)
+//             ->acceptJson()
+//             ->post('http://127.0.0.1:8001/api/login', $request->only(['email', 'password']));
+
+//         Log::info('Response from Auth Service', ['status' => $response->status(), 'body' => $response->body()]);
+
+//         return response()->json($response->json(), $response->status());
+//     } catch (\Exception $e) {
+//         Log::error('Auth Service unreachable', ['message' => $e->getMessage()]);
+
+//         return response()->json([
+//             'error' => 'Auth service is unreachable',
+//             'message' => $e->getMessage(),
+//         ], 500);
+//     }
+// });
+
 Route::post('/auth/login', function (Request $request) {
-    Log::info('API Gateway received login request', $request->all());
+ Log::info('Incoming login data:', $request->only('email', 'password'));
+    $response = Http::post('http://127.0.0.1:8001/api/login', $request->only('email', 'password'));
+     Log::info('Auth service response:', [$response->body()]);
 
-    try {
-        $response = Http::timeout(10)
-            ->acceptJson()
-            ->post('http://127.0.0.1:8001/api/login', $request->only(['email', 'password']));
-
-        Log::info('Response from Auth Service', ['status' => $response->status(), 'body' => $response->body()]);
-
-        return response()->json($response->json(), $response->status());
-    } catch (\Exception $e) {
-        Log::error('Auth Service unreachable', ['message' => $e->getMessage()]);
-
-        return response()->json([
-            'error' => 'Auth service is unreachable',
-            'message' => $e->getMessage(),
-        ], 500);
-    }
+    return response()->json($response->json(), $response->status());
 });
 
 Route::middleware('verify.jwt')->get('/auth/check', function (Request $request) {
