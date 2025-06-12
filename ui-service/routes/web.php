@@ -34,3 +34,10 @@ Route::post('/store-token', function (Request $request) {
 })->name('logout');
 
 
+Route::get('/users', function () {
+    return view('dashboard.users.index');
+})->middleware('require.jwt')->name('users.index');
+
+Route::get('/users/create', function () {
+    return view('dashboard.users.create');
+})->middleware('require.jwt')->name('users.create');
