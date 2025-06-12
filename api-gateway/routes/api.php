@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/login', function (Request $request) {
     Log::info('Incoming login data:', $request->only('email', 'password'));
-    $response = Http::post('http://127.0.0.1:8001/api/login', $request->only('email', 'password'));
+    $response = Http::internal()->post('http://127.0.0.1:8001/api/login', $request->only('email', 'password'));
     Log::info('Auth service response:', [$response->body()]);
 
     return response()->json($response->json(), $response->status());

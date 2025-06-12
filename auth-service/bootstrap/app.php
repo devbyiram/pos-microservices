@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+         $middleware->alias([
+    'verify.internal.secret' => \App\Http\Middleware\VerifyInternalSecret::class,
+         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
