@@ -9,17 +9,14 @@ Route::post('/auth/login', function (Request $request) {
    $response = Http::internal()->post('http://127.0.0.1:8001/api/login', $request->only('email', 'password'));
     return response()->json($response->json(), $response->status());
 });
- Route::get('/users', function (Request $request) {
+
+
+// Route::middleware(['verify.jwt'])->group(function () {
+
+    Route::get('/users', function (Request $request) {
         $response = Http::internal()->get('http://127.0.0.1:8002/api/users');
         return response()->json($response->json(), $response->status());
     });
-
-Route::middleware(['verify.jwt'])->group(function () {
-
-    // Route::get('/users', function (Request $request) {
-    //     $response = Http::internal()->get('http://127.0.0.1:8002/api/users');
-    //     return response()->json($response->json(), $response->status());
-    // });
 
     Route::post('/users', function (Request $request) {
         $response = Http::internal()->post('http://127.0.0.1:8002/api/users', $request->all());
@@ -70,4 +67,4 @@ Route::middleware(['verify.jwt'])->group(function () {
         $response = Http::internal()->delete("http://127.0.0.1:8002/api/stores/{$id}");
         return response()->json($response->json(), $response->status());
     });
-});
+// });

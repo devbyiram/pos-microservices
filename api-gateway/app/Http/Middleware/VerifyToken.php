@@ -6,6 +6,7 @@ use Closure;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyToken
@@ -19,8 +20,9 @@ class VerifyToken
     public function handle(Request $request, Closure $next)
     {
         try {
-            $token = $request->bearerToken();
+            $token = $request->bearerToken() ?? $request->cookie('jwt_token');
 
+           Log::info('Token received', ['token' => $token]);
             if (!$token) {
                 return response()->json(['error' => 'Token not provided'], 401);
             }
