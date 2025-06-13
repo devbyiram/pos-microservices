@@ -67,4 +67,100 @@ Route::post('/auth/login', function (Request $request) {
         $response = Http::internal()->delete("http://127.0.0.1:8002/api/stores/{$id}");
         return response()->json($response->json(), $response->status());
     });
+
+
+  // List categories
+Route::get('/categories', function () {
+    $response = Http::internal()->get("http://127.0.0.1:8004/api/categories");
+    return response()->json($response->json(), $response->status());
+});
+
+
+// Create category
+Route::post('/categories', function (Request $request) {
+    $response = Http::internal()->post('http://127.0.0.1:8004/api/categories', $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Show category
+Route::get('/categories/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8004/api/categories/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+// Update category
+Route::put('/categories/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8004/api/categories/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Delete category
+Route::delete('/categories/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8004/api/categories/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+
+
+// List brands
+Route::get('/brands', function () {
+    $response = Http::internal()->get('http://127.0.0.1:8004/api/brands');
+    return response()->json($response->json(), $response->status());
+});
+
+// Create brand
+Route::post('/brands', function (Request $request) {
+    $response = Http::internal()->post('http://127.0.0.1:8004/api/brands', $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Show brand
+Route::get('/brands/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8004/api/brands/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+// Update brand
+Route::put('/brands/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8004/api/brands/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Delete brand
+Route::delete('/brands/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8004/api/brands/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+
+// List all vendors
+Route::get('/vendors', function () {
+    $response = Http::internal()->get('http://127.0.0.1:8004/api/vendors');
+    return response()->json($response->json(), $response->status());
+});
+
+// Show single vendor
+Route::get('/vendors/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8004/api/vendors/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+// Create vendor
+Route::post('/vendors', function (Request $request) {
+    $response = Http::internal()->post("http://127.0.0.1:8004/api/vendors", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Update vendor
+Route::put('/vendors/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8004/api/vendors/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Delete vendor
+Route::delete('/vendors/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8004/api/vendors/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
 // });

@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
-use App\Http\Controllers\LoginController;
 
 Route::get('/', function () {
     return view('welcome');
