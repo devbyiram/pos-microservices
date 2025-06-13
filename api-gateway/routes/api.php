@@ -163,4 +163,31 @@ Route::delete('/vendors/{id}', function ($id) {
     return response()->json($response->json(), $response->status());
 });
 
+
+Route::get('/products', function () {
+    $response = Http::internal()->get('http://127.0.0.1:8004/api/products');
+    return response()->json($response->json(), $response->status());
+});
+
+Route::get('/products/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8004/api/products/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+Route::post('/products', function (Request $request) {
+    $response = Http::internal()->post('http://127.0.0.1:8004/api/products', $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+Route::put('/products/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8004/api/products/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+Route::delete('/products/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8004/api/products/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+
 // });
