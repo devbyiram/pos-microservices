@@ -15,7 +15,7 @@
             <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
                 <ul id="sidebarnav">
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="" aria-expanded="false">
+                        <a class="sidebar-link" href="{{route('dashboard.index')}}" aria-expanded="false">
                             <i class="fa-solid fa-layer-group"></i>
                             <span class="hide-menu">Home</span>
                         </a>
@@ -42,18 +42,18 @@
 
                             </a>
                         </li>
-                        {{-- <li class="sidebar-item">
-                            <a class="sidebar-link justify-content-between" href=""
+                        <li class="sidebar-item">
+                            <a class="sidebar-link justify-content-between" href="{{route('stores.index')}}"
                                 aria-expanded="false">
                                 <div class="d-flex align-items-center gap-3">
                                     <span class="d-flex">
-                                        <i class="fa-solid fa-list"></i>
+                                      <i class="fa-solid fa-store"></i>
                                     </span>
-                                    <span class="hide-menu">Categories</span>
+                                    <span class="hide-menu">Stores</span>
                                 </div>
 
                             </a>
-                        </li> --}}
+                        </li>
 
                     {{-- <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between has-arrow" href="javascript:void(0)"

@@ -7,6 +7,9 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
+                    <a type="button" href="{{route('users.index')}}" class="btn btn-primary  mb-4">
+                               Back
+                     </a>
                     <h5 class="card-title fw-semibold mb-4">Edit User</h5>
                     <div class="card">
                         <div class="card-body">
@@ -16,13 +19,13 @@
 
                                 <div class="form-group mb-3">
                                     <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <input type="text" class="form-control" id="name" name="name" >
                                     <small class="text-danger" id="error-name"></small>
                                 </div>
 
                                 <div class="form-group mb-3">
                                     <label for="email" class="form-label">Email address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    <input type="email" class="form-control" id="email" name="email" >
                                     <small class="text-danger" id="error-email"></small>
                                 </div>
 
@@ -34,7 +37,7 @@
 
                                 <div class="form-group mb-3">
                                     <label for="store_id" class="form-label">Store</label>
-                                    <select class="form-select" name="store_id" id="store_id" required>
+                                    <select class="form-select" name="store_id" id="store_id" >
                                         <option value="" disabled selected>Select a store</option>
                                     </select>
                                     <small class="text-danger" id="error-store_id"></small>

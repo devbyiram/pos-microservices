@@ -8,6 +8,9 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
+                     <a type="button" href="{{route('users.index')}}" class="btn btn-primary  mb-4">
+                               Back
+                     </a>
                     <h5 class="card-title fw-semibold mb-4">Add User</h5>
                     <div class="card">
                         <div class="card-body">

@@ -16,7 +16,7 @@ Route::get('/', function () {
 
   Route::get('/dashboard', function () { 
       return view('dashboard.index');
-  })->middleware('require.jwt');
+  })->middleware('require.jwt')->name('dashboard.index');
 
     
 Route::post('/store-token', function (Request $request) {
@@ -46,3 +46,14 @@ Route::get('/users/edit/{id}', function ($id) {
     return view('dashboard.users.edit', ['user_id' => $id]);
 })->middleware('require.jwt')->name('users.edit');
 
+Route::get('/stores', function () {
+    return view('dashboard.stores.index');
+})->middleware('require.jwt')->name('stores.index');
+
+Route::get('/stores/create', function () {
+    return view('dashboard.stores.create');
+})->middleware('require.jwt')->name('stores.create');
+
+Route::get('/stores/edit/{id}', function ($id) {
+    return view('dashboard.stores.edit', ['store_id' => $id]);
+})->middleware('require.jwt')->name('stores.edit');
