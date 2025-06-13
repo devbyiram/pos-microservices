@@ -45,3 +45,4 @@ Route::get('/users/create', function () {
 Route::get('/users/edit/{id}', function ($id) {
     return view('dashboard.users.edit', ['user_id' => $id]);
 })->middleware('require.jwt')->name('users.edit');
+

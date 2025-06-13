@@ -48,14 +48,15 @@
 
 @section('js')
     @parent
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tbody = document.getElementById('users-table-body');
-            if (!tbody) {
-                console.error("Element with ID 'users-table-body' not found.");
-                return;
-            }
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tbody = document.getElementById('users-table-body');
+        if (!tbody) {
+            console.error("Element with ID 'users-table-body' not found.");
+            return;
+        }
 
+        function loadUsers() {
             fetch('http://127.0.0.1:8000/api/users', {
                     method: 'GET',
                     credentials: 'include'
@@ -67,7 +68,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    const tbody = document.getElementById('users-table-body');
                     tbody.innerHTML = '';
 
                     if (!Array.isArray(data) || data.length === 0) {
@@ -78,25 +78,57 @@
                     data.forEach(user => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-            <td>${user.id}</td>
-            <td>${user.name}</td>
-            <td>${user.email}</td>
-            <td>${user.role ?? 'N/A'}</td>
-             <td><span class="badge bg-${user.status === 'active' ? 'success' : 'secondary'}">${user.status}</span></td>
-            <td>
-               <a href="/users/edit/${user.id}" class="btn btn-sm btn-primary">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-            </td>
-        `;
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role ?? 'N/A'}</td>
+                            <td><span class="badge bg-${user.status === 'active' ? 'success' : 'secondary'}">${user.status}</span></td>
+                            <td>
+                                <a href="/users/edit/${user.id}" class="btn btn-sm btn-primary">Edit</a>
+                                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">Delete</button>
+                            </td>
+                        `;
                         tbody.appendChild(row);
                     });
                 })
                 .catch(error => {
-                    const tbody = document.getElementById('users-table-body');
-                    tbody.innerHTML =
-                        `<tr><td colspan="7" class="text-danger">Error fetching users: ${error.message}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-danger">Error fetching users: ${error.message}</td></tr>`;
                     console.error('Error fetching users:', error);
                 });
-        });
-    </script>
+        }
+
+        window.deleteUser = function(userId) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            fetch(`http://127.0.0.1:8000/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'include'
+                })
+                .then(response => response.json()
+                    .then(data => ({
+                        status: response.status,
+                        body: data
+                    })))
+                .then(({ status, body }) => {
+                    if (status === 200) {
+                        alert(body.message);
+                        loadUsers(); // Reload table after deletion
+                    } else {
+                        alert('Error: ' + (body.message || 'Failed to delete user'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+
+                });
+        };
+
+        // Initial load
+        loadUsers();
+    });
+</script>
+
 @endsection
