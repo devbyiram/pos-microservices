@@ -19,59 +19,54 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string',
-            'email'     => 'required|email|unique:users',
-            'password'  => 'required|string|min:6',
-            'store_id'  => 'required|integer|exists:stores,id',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|string|min:6|confirmed',
+            'status'    => 'required|in:0,1',
+            'store_id'  => 'required|exists:stores,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors'  => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
-        try {
-            $validated = $validator->validated();
+        $validated = $validator->validated();
 
-            $validated['password'] = bcrypt($validated['password']);
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => $validated['password'],
+            'status'   => $validated['status'],
+        ]);
 
-            // Create user
-            $user = User::create([
-                'name'     => $validated['name'],
-                'email'    => $validated['email'],
-                'password' => $validated['password']
-            ]);
+        $user->stores()->attach($validated['store_id']);
 
-            // Attach store
-            $user->stores()->attach($validated['store_id']);
-
-            return response()->json(['message' => 'User created successfully'], 201);
-        } catch (\Exception $e) {
-            Log::error('User creation failed', ['error' => $e->getMessage()]);
-            return response()->json([
-                'message' => 'User creation failed',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'User created successfully',
+            'user'    => $user
+        ], 201);
     }
+
 
     // GET /users/{id}
     public function show($id)
     {
         $user = User::with('stores')->findOrFail($id);
-         return response()->json([
-        'id' => $user->id,
-        'name' => $user->name,
-        'email' => $user->email,
-        'stores' => $user->stores->map(function ($store) {
-            return [
-                'id' => $store->id,
-                'name' => $store->name,
-            ];
-        })->toArray(),
-    ]);
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'status' => $user->status,
+            'stores' => $user->stores->map(function ($store) {
+                return [
+                    'id' => $store->id,
+                    'name' => $store->name,
+                ];
+            })->toArray(),
+        ]);
     }
 
     // PUT /users/{id}
@@ -87,7 +82,8 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6',
+            'password' => 'required|string|min:6|confirmed',
+            'status' => 'required|in:1,0',
             'store_id' => 'required|exists:stores,id',
         ]);
 
@@ -109,11 +105,12 @@ class UserController extends Controller
         if (!empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
         }
+        $user->status = $validated['status'];
 
         $user->save();
 
         // Sync store to pivot table (user_store)
-        $user->stores()->sync([$validated['store_id']]);
+         $user->stores()->sync($validated['store_id'] ?? []);
 
         // Return success response
 
@@ -125,17 +122,17 @@ class UserController extends Controller
 
 
     // DELETE /users/{id}
- public function destroy($id)
-{
-    $user = User::findOrFail($id);
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
 
-    // Optional: detach store relationships if you want to clean up pivot
-    $user->stores()->detach();
+        // Optional: detach store relationships if you want to clean up pivot
+        $user->stores()->detach();
 
-    $user->delete();
+        $user->delete();
 
-    return response()->json([
-        'message' => 'User deleted successfully'
-    ]);
-}
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ]);
+    }
 }

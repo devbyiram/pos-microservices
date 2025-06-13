@@ -18,6 +18,7 @@ class StoreController extends Controller
     {
          $validator = Validator::make($request->all(), [
         'name' => 'required|string|max:255|unique:stores,name',
+        'status'=>'required|in:1,0',
     ]);
 
     if ($validator->fails()) {
@@ -29,6 +30,7 @@ class StoreController extends Controller
 
     Store::create([
         'name' => $request->name,
+        'status'=>$request->status,
     ]);
         return response()->json(['message' => 'Store created successfully'], 201);
     }
@@ -42,6 +44,7 @@ class StoreController extends Controller
     {
         $validator = Validator::make($request->all(), [
         'name' => 'required|string|max:100|unique:stores,name,' . $store->id,
+        'status'=>'required|in:1,0',
     ]);
 
     if ($validator->fails()) {
@@ -53,6 +56,7 @@ class StoreController extends Controller
 
     $store->update([
         'name' => $request->input('name'),
+        'status'=>$request->input('status'),
     ]);
 
         return response()->json(['message' => 'Store updated successfully']);

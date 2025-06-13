@@ -24,6 +24,16 @@
                                     <small class="text-danger" id="error-name"></small>
                                 </div>
 
+                                <div class="form-group mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" name="status" id="status">
+                                        <option value="" disabled selected>Select status</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                    <div class="text-danger" id="error-status"></div>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary">Update Store</button>
                                 <a href="{{ route('stores.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
@@ -53,6 +63,7 @@
 
                 const store = await res.json();
                 document.getElementById('name').value = store.name;
+                document.getElementById('status').value = store.status;
             } catch (err) {
                 console.error('Failed to load store:', err);
                 alert('Failed to load store data.');
@@ -68,6 +79,7 @@
 
             // Clear previous errors
             document.getElementById('error-name').textContent = '';
+            document.getElementById('error-status').textContent = '';
 
             const formData = new FormData(this);
             const jsonData = Object.fromEntries(formData.entries());
@@ -88,6 +100,7 @@
                 if (!response.ok) {
                     if (result.errors && result.errors.name) {
                         document.getElementById('error-name').textContent = result.errors.name[0];
+                        document.getElementById('error-status').textContent = result.errors.status[0];
                     } else {
                         alert('Error: ' + result.message);
                     }

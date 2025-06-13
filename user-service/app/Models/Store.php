@@ -9,6 +9,7 @@ class Store extends Model
 {
     protected $fillable = [
         'name',
+        'status'
     ];
 
     public function users(): BelongsToMany
