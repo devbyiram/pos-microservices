@@ -10,10 +10,8 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        // dd(Category::all());
     return response()->json(Category::with('store:id,name')->get());
 
-     
     }
 
     public function store(Request $request)

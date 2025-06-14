@@ -38,7 +38,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
         }
 
-        $product = Product::create($validator->validated());
+     Product::create($validator->validated());
 
         return response()->json(['message' => 'Product created successfully'], 201);
     }

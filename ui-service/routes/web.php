@@ -56,3 +56,52 @@ Route::get('/stores/create', function () {
 Route::get('/stores/edit/{id}', function ($id) {
     return view('dashboard.stores.edit', ['store_id' => $id]);
 })->middleware('require.jwt')->name('stores.edit');
+
+Route::get('/brands', function () {
+    return view('dashboard.brands.index');
+})->middleware('require.jwt')->name('brands.index');
+
+Route::get('/brands/create', function () {
+    return view('dashboard.brands.create');
+})->middleware('require.jwt')->name('brands.create');
+
+Route::get('/brands/edit/{id}', function ($id) {
+    return view('dashboard.brands.edit', ['brand_id' => $id]);
+})->middleware('require.jwt')->name('brands.edit');
+  
+Route::get('/categories', function () {
+    return view('dashboard.categories.index');
+})->middleware('require.jwt')->name('categories.index'); 
+ 
+Route::get('/categories/create', function () {
+    return view('dashboard.categories.create');
+})->middleware('require.jwt')->name('categories.create');
+ 
+Route::get('/categories/edit/{id}', function ($id) {
+    return view('dashboard.categories.edit', ['category_id' => $id]);
+})->middleware('require.jwt')->name('categories.edit');
+
+Route::get('/vendors', function () {
+    return view('dashboard.vendors.index');
+})->middleware('require.jwt')->name('vendors.index');
+
+Route::get('/vendors/create', function () {
+    return view('dashboard.vendors.create');
+})->middleware('require.jwt')->name('vendors.create');
+ 
+Route::get('/vendors/edit/{id}', function ($id) {
+    return view('dashboard.vendors.edit', ['vendor_id' => $id]);
+})->middleware('require.jwt')->name('vendors.edit');    
+
+
+Route::get('/products', function () {
+    return view('dashboard.products.index');
+})->middleware('require.jwt')->name('products.index');
+
+Route::get('/products/create', function () {
+    return view('dashboard.products.create');
+})->middleware('require.jwt')->name('products.create');
+
+Route::get('/products/edit/{id}', function ($id) {
+    return view('dashboard.products.edit', ['product_id' => $id]);
+})->middleware('require.jwt')->name('products.edit');
