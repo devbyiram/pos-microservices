@@ -190,4 +190,34 @@ Route::delete('/products/{id}', function ($id) {
 });
 
 
+// Get all purchases
+Route::get('/purchases', function () {
+    $response = Http::internal()->get('http://127.0.0.1:8005/api/purchases');
+    return response()->json($response->json(), $response->status());
+});
+
+// Get a single purchase
+Route::get('/purchases/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8005/api/purchases/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+// Create a new purchase
+Route::post('/purchases', function (Request $request) {
+    $response = Http::internal()->post('http://127.0.0.1:8005/api/purchases', $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Update an existing purchase
+Route::put('/purchases/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8005/api/purchases/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+// Delete a purchase
+Route::delete('/purchases/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8005/api/purchases/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
 // });
