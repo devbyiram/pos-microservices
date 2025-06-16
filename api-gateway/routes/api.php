@@ -220,4 +220,29 @@ Route::delete('/purchases/{id}', function ($id) {
     return response()->json($response->json(), $response->status());
 });
 
+
+Route::get('/purchaseitems', function () {
+    $response = Http::internal()->get('http://127.0.0.1:8005/api/purchaseitems');
+    return response()->json($response->json(), $response->status());
+});
+
+Route::get('/purchaseitems/{id}', function ($id) {
+    $response = Http::internal()->get("http://127.0.0.1:8005/api/purchaseitems/{$id}");
+    return response()->json($response->json(), $response->status());
+});
+
+Route::post('/purchaseitems', function (Request $request) {
+    $response = Http::internal()->post('http://127.0.0.1:8005/api/purchaseitems', $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+Route::put('/purchaseitems/{id}', function (Request $request, $id) {
+    $response = Http::internal()->put("http://127.0.0.1:8005/api/purchaseitems/{$id}", $request->all());
+    return response()->json($response->json(), $response->status());
+});
+
+Route::delete('/purchaseitems/{id}', function ($id) {
+    $response = Http::internal()->delete("http://127.0.0.1:8005/api/purchaseitems/{$id}");
+    return response()->json($response->json(), $response->status());
+});
 // });
