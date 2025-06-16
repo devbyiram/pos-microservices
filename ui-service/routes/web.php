@@ -117,3 +117,15 @@ Route::get('/variant-attributes/create', function () {
 Route::get('/variant-attributes/edit/{id}', function ($id) {
     return view('dashboard.variant-attributes.edit', ['variant_attribute_id' => $id]);
 })   ->middleware('require.jwt')->name('variant-attributes.edit');
+
+Route::get('/product-variants', function () {
+    return view('dashboard.product-variants.index');
+})->middleware('require.jwt')->name('product-variants.index');
+
+Route::get('/product-variants/create', function () {
+    return view('dashboard.product-variants.create');
+})->middleware('require.jwt')->name('product-variants.create');
+
+Route::get('/product-variants/edit/{id}', function ($id) {
+    return view('dashboard.product-variants.edit', ['product_variant_id' => $id]);
+})   ->middleware('require.jwt')->name('product-variants.edit');
