@@ -37,9 +37,6 @@ class ProductController extends Controller
             'category_id' => 'nullable|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
             'vendor_id' => 'nullable|integer|exists:vendors,id',
-            'cost_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
             'status' => 'required|in:0,1',
         ]);
 
@@ -70,9 +67,6 @@ class ProductController extends Controller
             'category_id' => 'nullable|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
             'vendor_id' => 'nullable|integer|exists:vendors,id',
-            'cost_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
             'status' => 'required|in:0,1',
         ]);
 
