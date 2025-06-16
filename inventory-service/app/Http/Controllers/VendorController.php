@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
@@ -18,7 +19,14 @@ class VendorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('vendors', 'name')->where(function ($query) use ($request) {
+                    return $query->where('store_id', $request->store_id);
+                }),
+            ],
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
@@ -45,7 +53,14 @@ class VendorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('vendors', 'name')->where(function ($query) use ($request) {
+                    return $query->where('store_id', $request->store_id);
+                }),
+            ],
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',

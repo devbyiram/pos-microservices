@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
 class BrandController extends Controller
@@ -16,7 +18,14 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:brands,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('brands')->where(function ($query) use ($request) {
+                    return $query->where('store_id', $request->store_id);
+                }),
+            ],
             'store_id' => 'required|exists:stores,id',
         ]);
 
@@ -40,7 +49,16 @@ class BrandController extends Controller
     public function update(Request $request, Brand $brand)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('brands', 'name')
+                    ->ignore($brand->id)
+                    ->where(function ($query) use ($request) {
+                        return $query->where('store_id', $request->store_id);
+                    }),
+            ],
             'store_id' => 'required|exists:stores,id',
         ]);
 

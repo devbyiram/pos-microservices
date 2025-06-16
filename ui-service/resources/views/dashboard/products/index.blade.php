@@ -38,6 +38,7 @@
                                         <th>Brand</th>
                                         <th>Vendor</th>
                                         <th>User</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -108,6 +109,7 @@
                         <td>${product.brand?.name || 'N/A'}</td>
                         <td>${product.vendor?.name || 'N/A'}</td>
                         <td>${product.user?.name || 'N/A'}</td>
+                        <td><span class="badge bg-${product.status == 1 ? 'success' : 'secondary'}">${product.status == 1 ? 'Active' : 'Inactive'}</span></td>
                         <td>
                             <a href="/products/edit/${product.id}" class="btn btn-sm btn-primary">Edit</a>
                             <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">Delete</button>

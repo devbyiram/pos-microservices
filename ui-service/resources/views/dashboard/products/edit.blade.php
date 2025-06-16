@@ -81,6 +81,16 @@
                                 <div class="text-danger" id="error-vendor_id"></div>
                             </div>
 
+                              <div class="form-group mb-3">
+                                <label for="status">Status</label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="" disabled selected>Select status</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                                <div class="text-danger" id="error-status"></div>
+                            </div>
+
                             <button type="submit" class="btn btn-primary">Update Product</button>
                             <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
                         </form>
@@ -128,6 +138,7 @@
             document.getElementById('cost_price').value = product.cost_price;
             document.getElementById('sale_price').value = product.sale_price;
             document.getElementById('stock_quantity').value = product.stock_quantity;
+            document.getElementById('status').value = product.status;
 
             await Promise.all([
                 populateDropdown('http://127.0.0.1:8000/api/stores', 'store_id', product.store_id),
@@ -147,12 +158,13 @@
     document.getElementById('edit-product-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        ['name', 'cost_price', 'sale_price', 'stock_quantity', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id'].forEach(field => {
+        ['name', 'cost_price', 'sale_price', 'stock_quantity', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id','status'].forEach(field => {
             document.getElementById(`error-${field}`).innerText = '';
         });
 
         const formData = new FormData(this);
         const jsonData = Object.fromEntries(formData.entries());
+        jsonData.status = $('#status').val();
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/products/${productId}`, {

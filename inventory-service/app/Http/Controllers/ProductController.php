@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
@@ -25,20 +26,28 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|integer|exists:stores,id',
             'user_id' => 'required|integer|exists:users,id',
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products')->where(function ($query) use ($request) {
+                    return $query->where('store_id', $request->store_id);
+                }),
+            ],
             'category_id' => 'nullable|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
             'vendor_id' => 'nullable|integer|exists:vendors,id',
             'cost_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
+            'status' => 'required|in:0,1',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
         }
 
-     Product::create($validator->validated());
+        Product::create($validator->validated());
 
         return response()->json(['message' => 'Product created successfully'], 201);
     }
@@ -50,13 +59,21 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|integer|exists:stores,id',
             'user_id' => 'required|integer|exists:users,id',
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products')->where(function ($query) use ($request) {
+                    return $query->where('store_id', $request->store_id);
+                }),
+            ],
             'category_id' => 'nullable|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
             'vendor_id' => 'nullable|integer|exists:vendors,id',
             'cost_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
+            'status' => 'required|in:0,1',
         ]);
 
         if ($validator->fails()) {
