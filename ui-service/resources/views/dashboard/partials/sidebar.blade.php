@@ -15,8 +15,8 @@
             <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
                 <ul id="sidebarnav">
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="{{route('dashboard.index')}}" aria-expanded="false">
-                            <i class="fa-solid fa-layer-group"></i>
+                        <a class="sidebar-link" href="{{ route('dashboard.index') }}" aria-expanded="false">
+                            <i class="fa-solid fa-house"></i>
                             <span class="hide-menu">Home</span>
                         </a>
                     </li>
@@ -30,32 +30,32 @@
                     <!-- Dashboard -->
                     <!-- ---------------------------------- -->
 
-                        <li class="sidebar-item">
-                            <a class="sidebar-link justify-content-between" href="{{route('users.index')}}"
-                                aria-expanded="false">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="d-flex">
-                                        <i class="fa-solid fa-circle-user"></i>
-                                    </span>
-                                    <span class="hide-menu">Users</span>
-                                </div>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between" href="{{ route('users.index') }}"
+                            aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="fa-solid fa-circle-user"></i>
+                                </span>
+                                <span class="hide-menu">Users</span>
+                            </div>
 
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link justify-content-between" href="{{route('stores.index')}}"
-                                aria-expanded="false">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="d-flex">
-                                      <i class="fa-solid fa-store"></i>
-                                    </span>
-                                    <span class="hide-menu">Stores</span>
-                                </div>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between" href="{{ route('stores.index') }}"
+                            aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="fa-solid fa-store"></i>
+                                </span>
+                                <span class="hide-menu">Stores</span>
+                            </div>
 
-                            </a>
-                        </li>
+                        </a>
+                    </li>
 
-                     <li class="sidebar-item">
+                    <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between has-arrow" href="javascript:void(0)"
                             aria-expanded="false">
                             <div class="d-flex align-items-center gap-3">
@@ -66,9 +66,9 @@
                             </div>
 
                         </a>
-                         <ul aria-expanded="false" class="collapse first-level">
+                        <ul aria-expanded="false" class="collapse first-level">
                             <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('products.index')}}">
+                                <a class="sidebar-link justify-content-between" href="{{ route('products.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -79,7 +79,7 @@
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('categories.index')}}">
+                                <a class="sidebar-link justify-content-between" href="{{ route('categories.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -90,7 +90,7 @@
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('brands.index')}}">
+                                <a class="sidebar-link justify-content-between" href="{{ route('brands.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -101,7 +101,7 @@
                                 </a>
                             </li>
                             <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('vendors.index')}}">
+                                <a class="sidebar-link justify-content-between" href="{{ route('vendors.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -111,8 +111,9 @@
 
                                 </a>
                             </li>
-                    <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('variant-attributes.index')}}">
+                            <li class="sidebar-item">
+                                <a class="sidebar-link justify-content-between"
+                                    href="{{ route('variant-attributes.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -122,8 +123,9 @@
 
                                 </a>
                             </li>
-                           <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="{{route('product-variants.index')}}">
+                            <li class="sidebar-item">
+                                <a class="sidebar-link justify-content-between"
+                                    href="{{ route('product-variants.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
@@ -133,105 +135,6 @@
 
                                 </a>
                             </li>
-                           {{--  <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Pricing</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <span class="sidebar-divider lg"></span>
-                    </li>
-                    <li class="nav-small-cap">
-                        <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
-                        <span class="hide-menu">Apps</span>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link justify-content-between has-arrow" href="javascript:void(0)"
-                            aria-expanded="false">
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="d-flex">
-                                    <i class="ti ti-basket"></i>
-                                </span>
-                                <span class="hide-menu">Ecommerce</span>
-                            </div>
-
-                        </a>
-                        <ul aria-expanded="false" class="collapse first-level">
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Shop</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Details</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">List</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Checkout</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Add Product</span>
-                                    </div>
-
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Edit Product</span>
-                                    </div>
-
-                                </a>
-                            </li>
                         </ul>
                     </li>
                     <li class="sidebar-item">
@@ -239,20 +142,20 @@
                             aria-expanded="false">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="d-flex">
-                                    <i class="ti ti-chart-donut-3"></i>
+                                    <i class="fa-solid fa-bag-shopping"></i>
                                 </span>
-                                <span class="hide-menu">Blog</span>
+                                <span class="hide-menu">Purchases</span>
                             </div>
 
                         </a>
                         <ul aria-expanded="false" class="collapse first-level">
                             <li class="sidebar-item">
-                                <a class="sidebar-link justify-content-between" href="#">
+                                <a class="sidebar-link justify-content-between" href="{{ route('purchases.index') }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
                                         </div>
-                                        <span class="hide-menu">Blog Posts</span>
+                                        <span class="hide-menu">Purchase</span>
                                     </div>
 
                                 </a>
@@ -263,14 +166,14 @@
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
                                         </div>
-                                        <span class="hide-menu">Blog Details</span>
+                                        <span class="hide-menu">Purchase Items</span>
                                     </div>
 
                                 </a>
                             </li>
                         </ul>
                     </li>
-                    <li class="sidebar-item">
+                    {{-- <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between" href="#" aria-expanded="false">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="d-flex">
@@ -358,7 +261,7 @@
 
                         </a>
                     </li>
-                    <li class="sidebar-item">
+                     <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between" href="#" aria-expanded="false">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="d-flex">

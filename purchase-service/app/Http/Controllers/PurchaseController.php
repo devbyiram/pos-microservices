@@ -15,7 +15,7 @@ class PurchaseController extends Controller
             'store:id,name',
             'user:id,name',
             'vendor:id,name',
-            'items.product:id,name'
+            'items.product:id'
         ])->get();
 
         return response()->json($purchases);

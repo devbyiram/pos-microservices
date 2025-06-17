@@ -129,3 +129,15 @@ Route::get('/product-variants/create', function () {
 Route::get('/product-variants/edit/{id}', function ($id) {
     return view('dashboard.product-variants.edit', ['product_variant_id' => $id]);
 })   ->middleware('require.jwt')->name('product-variants.edit');
+
+Route::get('/purchases', function () {
+    return view('dashboard.purchase.index');
+})->middleware('require.jwt')->name('purchases.index');
+
+Route::get('/purchases/create', function () {
+    return view('dashboard.purchase.create');
+})->middleware('require.jwt')->name('purchases.create');
+
+Route::get('/purchases/edit/{id}', function ($id) {
+    return view('dashboard.purchase.edit', ['purchase_id' => $id]);
+})->middleware('require.jwt')->name('purchases.edit');
