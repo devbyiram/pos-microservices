@@ -33,48 +33,48 @@ class PurchaseController extends Controller
         return response()->json($purchase);
     }
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'store_id' => 'required|exists:stores,id',
-            'user_id' => 'required|exists:users,id',
-            'vendor_id' => 'required|exists:vendors,id',
-            'purchase_date' => 'required|date',
-            'total_amount' => 'required|numeric|min:0',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.price' => 'required|numeric|min:0'
-        ]);
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'store_id' => 'required|exists:stores,id',
+        'vendor_id' => 'required|exists:vendors,id',
+        'purchase_date' => 'required|date',
+        'total_amount' => 'required|numeric|min:0',
+        'items' => 'required|array|min:1',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.quantity' => 'required|integer|min:1',
+        'items.*.price' => 'required|numeric|min:0'
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $data = $validator->validated();
-
-        $purchase = Purchase::create([
-            'store_id' => $data['store_id'],
-            'user_id' => $data['user_id'],
-            'vendor_id' => $data['vendor_id'],
-            'purchase_date' => $data['purchase_date'],
-            'total_amount' => $data['total_amount']
-        ]);
-
-        foreach ($data['items'] as $item) {
-            PurchaseItem::create([
-                'purchase_id' => $purchase->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price']
-            ]);
-        }
-
-        return response()->json(['message' => 'Purchase created successfully'], 201);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
     }
+
+    $data = $validator->validated();
+
+    $purchase = Purchase::create([
+        'store_id' => $data['store_id'],
+        'user_id' => null, // Intentionally set to null, as frontend does not send user_id
+        'vendor_id' => $data['vendor_id'],
+        'purchase_date' => $data['purchase_date'],
+        'total_amount' => $data['total_amount']
+    ]);
+
+    foreach ($data['items'] as $item) {
+    PurchaseItem::create([
+        'purchase_id' => $purchase->id,
+        'product_id' => $item['product_id'],
+        'quantity' => (int) $item['quantity'],
+        'price' => (float) $item['price']
+    ]);
+}
+
+    return response()->json(['message' => 'Purchase created successfully'], 201);
+}
+
 
     public function update(Request $request, $id)
     {
@@ -82,7 +82,6 @@ class PurchaseController extends Controller
 
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
-            'user_id' => 'required|exists:users,id',
             'vendor_id' => 'required|exists:vendors,id',
             'purchase_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
@@ -103,7 +102,7 @@ class PurchaseController extends Controller
 
         $purchase->update([
             'store_id' => $data['store_id'],
-            'user_id' => $data['user_id'],
+            'user_id' => null,
             'vendor_id' => $data['vendor_id'],
             'purchase_date' => $data['purchase_date'],
             'total_amount' => $data['total_amount']
