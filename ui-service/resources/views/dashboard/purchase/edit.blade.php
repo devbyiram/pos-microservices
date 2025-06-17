@@ -176,7 +176,7 @@
                 <td><input type="number" name="items[][quantity]" class="form-control quantity" min="1" value="${item?.quantity || 1}"></td>
                 <td><input type="number" name="items[][purchase_price]" class="form-control purchase_price" step="0.01" value="${item?.purchase_price || 0}"></td>
                 <td><input type="number" name="items[][discount]" class="form-control discount" step="0.01" value="${item?.discount || 0}"></td>
-                <td><input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="${item?.tax || 0}"></td>
+                <td><input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="${item?.tax_percent || item?.tax || 0}"></td>
                 <td><input type="number" name="items[][tax_amount]" class="form-control tax_amount" step="0.01" readonly value="${item?.tax_amount || 0}"></td>
                 <td><input type="number" name="items[][unit_cost]" class="form-control unit_cost" step="0.01" readonly value="${item?.unit_cost || 0}"></td>
                 <td><input type="number" name="items[][total_cost]" class="form-control total_cost" step="0.01" readonly value="${item?.total_cost || 0}"></td>
