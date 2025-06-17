@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
@@ -34,69 +36,84 @@ class PurchaseController extends Controller
     }
 
 
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'vendor_id' => 'required|exists:vendors,id',
+            'purchase_date' => 'required|date',
+            'status' => 'required|in:Received,Pending',
+            'payment_status' => 'required|in:Paid,Unpaid',
+            'order_tax' => 'required|numeric|min:0',
+            'order_discount' => 'required|numeric|min:0',
+            'shipping' => 'nullable|numeric|min:0',
+            'total_amount' => 'required|numeric|min:0',
 
-public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'store_id' => 'required|exists:stores,id',
-        'vendor_id' => 'required|exists:vendors,id',
-        'purchase_date' => 'required|date',
-        'status' => 'required|in:Received,Pending',
-        'payment_status' => 'required|in:Paid,Unpaid',
-        'order_tax' => 'required|numeric|min:0',
-        'order_discount' => 'required|numeric|min:0',
-        'shipping' => 'nullable|numeric|min:0',
-        'total_amount' => 'required|numeric|min:0',
-
-        'items' => 'required|array|min:1',
-        'items.*.product_id' => 'required|exists:products,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'items.*.purchase_price' => 'required|numeric|min:0',
-        'items.*.discount' => 'nullable|numeric|min:0',
-        'items.*.tax' => 'nullable|numeric|min:0',
-        'items.*.tax_amount' => 'required|numeric|min:0',
-        'items.*.unit_cost' => 'required|numeric|min:0',
-        'items.*.total_cost' => 'required|numeric|min:0',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation failed',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    $data = $validator->validated();
-
-    $purchase = Purchase::create([
-        'store_id' => $data['store_id'],
-        'user_id' => null, // add auth()->id() if using auth
-        'vendor_id' => $data['vendor_id'],
-        'purchase_date' => $data['purchase_date'],
-        'shipping' => $data['shipping'] ?? 0,
-        'status' => $data['status'],
-        'payment_status' => $data['payment_status'],
-        'order_tax' => $data['order_tax'],
-        'order_discount' => $data['order_discount'],
-        'total_amount' => $data['total_amount'],
-    ]);
-
-    foreach ($data['items'] as $item) {
-        PurchaseItem::create([
-            'purchase_id' => $purchase->id,
-            'product_id' => $item['product_id'],
-            'quantity' => $item['quantity'],
-            'purchase_price' => $item['purchase_price'],
-            'discount' => $item['discount'],
-            'tax' => $item['tax'],
-            'tax_amount' => $item['tax_amount'],
-            'unit_cost' => $item['unit_cost'],
-            'total_cost' => $item['total_cost'],
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.purchase_price' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.tax' => 'nullable|numeric|min:0',
+            'items.*.tax_amount' => 'required|numeric|min:0',
+            'items.*.unit_cost' => 'required|numeric|min:0',
+            'items.*.total_cost' => 'required|numeric|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        try {
+            DB::beginTransaction();
+
+            $purchase = Purchase::create([
+                'store_id' => $data['store_id'],
+                'user_id' => null,
+                'vendor_id' => $data['vendor_id'],
+                'purchase_date' => $data['purchase_date'],
+                'shipping' => $data['shipping'] ?? 0,
+                'status' => $data['status'],
+                'payment_status' => $data['payment_status'],
+                'order_tax' => $data['order_tax'],
+                'order_discount' => $data['order_discount'],
+                'total_amount' => $data['total_amount'],
+            ]);
+
+            foreach ($data['items'] as $item) {
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'purchase_price' => $item['purchase_price'],
+                    'discount' => $item['discount'] ?? 0,
+                    'tax_amount' => $item['tax_amount'],
+                    'unit_cost' => $item['unit_cost'],
+                    'total_cost' => $item['total_cost'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['message' => 'Purchase created successfully'], 201);
+       } catch (\Exception $e) {
+    DB::rollBack();
+    Log::error('Purchase creation failed', [
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ]);
+    return response()->json([
+        'message' => 'Failed to create purchase',
+        'error' => $e->getMessage()
+    ], 500);
+}
     }
 
-    return response()->json(['message' => 'Purchase created successfully'], 201);
-}
 
 
 
