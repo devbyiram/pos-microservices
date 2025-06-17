@@ -16,35 +16,42 @@
             <a href="{{ route('purchases.create') }}" class="btn btn-primary">Add Purchase</a>
         </div>
 
-        <!-- Row 1 -->
+        <!-- Row -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="card w-100">
                     <div class="card-body">
                         <div class="d-md-flex align-items-center justify-content-between">
-                            <h4 class="card-title">Purchases</h4>
+                            <h4 class="card-title">Purchase</h4>
+                            <div>
+                                <button class="btn btn-outline-secondary">Export</button>
+                                <button class="btn btn-outline-secondary">Import</button>
+                            </div>
                         </div>
+
                         <div class="table-responsive mt-4">
                             <table class="table table-bordered table-hover">
                                 <thead class="table">
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Store</th>
-                                        <th>User</th>
-                                        <th>Vendor</th>
+                                        <th>Supplier Name</th>
+                                        <th>Reference</th>
                                         <th>Purchase Date</th>
-                                        <th>Total Amount</th>
-                                        <th>Products</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Paid</th>
+                                        <th>Due</th>
+                                        <th>Payment Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="purchases-table-body">
                                     <tr>
-                                        <td colspan="8">Loading...</td>
+                                        <td colspan="9">Loading...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -88,22 +95,29 @@
                 tbody.innerHTML = '';
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8">No purchases found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9">No purchases found.</td></tr>';
                     return;
                 }
 
                 data.forEach(purchase => {
+                    const statusColor = purchase.status === 'Received' ? 'success' : 
+                                        purchase.status === 'Ordered' ? 'warning' : 
+                                        'primary';
+
+                    const paymentStatusColor = purchase.payment_status === 'Paid' ? 'success' :
+                                               purchase.payment_status === 'Unpaid' ? 'danger' :
+                                               'warning';
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${purchase.id}</td>
-                        <td>${purchase.store?.name || 'N/A'}</td>
-                        <td>${purchase.user?.name || 'N/A'}</td>
                         <td>${purchase.vendor?.name || 'N/A'}</td>
+                        <td>${purchase.reference || 'N/A'}</td>
                         <td>${purchase.purchase_date || 'N/A'}</td>
-                        <td>${purchase.total_amount || 0}</td>
-                        <td>
-                            ${purchase.items?.map(item => item.product?.id).filter(Boolean).join(', ') || 'N/A'}
-                        </td>
+                        <td><span class="badge bg-${statusColor}">${purchase.status || 'N/A'}</span></td>
+                        <td>$${purchase.total_amount || 0}</td>
+                        <td>$${purchase.paid_amount || 0}</td>
+                        <td>$${purchase.due_amount || 0}</td>
+                        <td><span class="badge bg-${paymentStatusColor}">${purchase.payment_status || 'N/A'}</span></td>
                         <td>
                             <a href="/purchases/edit/${purchase.id}" class="btn btn-sm btn-primary">Edit</a>
                             <button class="btn btn-sm btn-danger" onclick="deletePurchase(${purchase.id})">Delete</button>
@@ -113,7 +127,7 @@
                 });
             })
             .catch(error => {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-danger">Error fetching purchases: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-danger">Error fetching purchases: ${error.message}</td></tr>`;
                 console.error('Error fetching purchases:', error);
             });
         }
