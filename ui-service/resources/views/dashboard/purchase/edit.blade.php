@@ -116,52 +116,72 @@
     </div>
 @endsection
 
-
 @section('js')
     @parent
     <script>
         const purchaseId = document.getElementById('purchase_id').value;
         let productsList = [];
+        let purchaseData = null;
 
         function updateTotalAmount() {
-            let subtotal = 0;
-            let totalOrderTax = 0;
-            let totalOrderDiscount = 0;
+    let subtotal = 0;
+    let totalOrderTax = 0;
+    let totalOrderDiscount = 0;
 
-            document.querySelectorAll('#items-table tbody tr').forEach(row => {
-                const qty = parseFloat(row.querySelector('.quantity').value) || 0;
-                const price = parseFloat(row.querySelector('.purchase_price').value) || 0;
-                const discount = parseFloat(row.querySelector('.discount').value) || 0;
-                const tax = parseFloat(row.querySelector('.tax').value) || 0;
+    document.querySelectorAll('#items-table tbody tr').forEach(row => {
+        const qtyInput = row.querySelector('.quantity');
+        const priceInput = row.querySelector('.purchase_price');
+        const productInput = row.querySelector('.product_id');
 
-                const itemDiscount = discount * qty;
-                const taxAmount = ((price - discount) * tax / 100) * qty;
-                const unitCost = (price - discount) + ((price - discount) * tax / 100);
-                const totalCost = unitCost * qty;
+        const qty = parseFloat(qtyInput.value) || 0;
+        const price = parseFloat(priceInput.value);
+        const discount = parseFloat(row.querySelector('.discount').value) || 0;
+        const tax = parseFloat(row.querySelector('.tax').value) || 0;
 
-                // Update hidden fields in the row
-                row.querySelector('.tax_amount').value = taxAmount.toFixed(2);
-                row.querySelector('.unit_cost').value = unitCost.toFixed(2);
-                row.querySelector('.total_cost').value = totalCost.toFixed(2);
+        // Error divs
+        const priceError = row.querySelector('.error-purchase_price');
+        const qtyError = row.querySelector('.error-quantity');
+        const productError = row.querySelector('.error-product_id');
 
-                subtotal += totalCost;
-                totalOrderTax += taxAmount;
-                totalOrderDiscount += itemDiscount;
-            });
+        // Clear existing error messages
+        priceError.innerText = '';
+        qtyError.innerText = '';
+        productError.innerText = '';
 
-            const shipping = parseFloat(document.getElementById('shipping').value) || 0;
-            const total = subtotal + shipping;
-
-            // Update the calculated fields
-            document.getElementById('order_discount').value = totalOrderDiscount.toFixed(2);
-            document.getElementById('order_tax').value = totalOrderTax.toFixed(2);
-            document.getElementById('total_amount').value = (total).toFixed(2);
-
-            document.getElementById('order_discount_display').value = totalOrderDiscount.toFixed(2);
-            document.getElementById('order_tax_display').value = totalOrderTax.toFixed(2);
-            document.getElementById('shipping_display').value = shipping.toFixed(2);
+        // Show validation messages
+        if (!productInput.value) {
+            productError.innerText = 'Please select a product';
         }
 
+        if (qty <= 0) {
+            qtyError.innerText = 'Quantity is required';
+        }
+
+        if (price <= 1) {
+            priceError.innerText = 'Purchase price is required';
+        }
+
+        const itemDiscount = discount * qty;
+        const taxAmount = ((price - discount) * tax / 100) * qty;
+        const unitCost = (price - discount) + ((price - discount) * tax / 100);
+        const totalCost = unitCost * qty;
+
+        row.querySelector('.tax_amount').value = taxAmount.toFixed(2);
+        row.querySelector('.unit_cost').value = unitCost.toFixed(2);
+        row.querySelector('.total_cost').value = totalCost.toFixed(2);
+
+        subtotal += totalCost;
+        totalOrderTax += taxAmount;
+        totalOrderDiscount += itemDiscount;
+    });
+
+    const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+    const total = subtotal + shipping;
+
+    document.getElementById('order_discount').value = totalOrderDiscount.toFixed(2);
+    document.getElementById('order_tax').value = totalOrderTax.toFixed(2);
+    document.getElementById('total_amount').value = total.toFixed(2);
+}
 
         function addItemRow(item = null) {
             const tbody = document.querySelector('#items-table tbody');
@@ -172,11 +192,26 @@
             ).join('');
 
             row.innerHTML = `
-                <td><select class="form-select product_id" name="items[][product_id]">${options}</select></td>
-                <td><input type="number" name="items[][quantity]" class="form-control quantity" min="1" value="${item?.quantity || 1}"></td>
-                <td><input type="number" name="items[][purchase_price]" class="form-control purchase_price" step="0.01" value="${item?.purchase_price || 0}"></td>
-                <td><input type="number" name="items[][discount]" class="form-control discount" step="0.01" value="${item?.discount || 0}"></td>
-                <td><input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="${item?.tax_percent || item?.tax || 0}"></td>
+                <td>
+                    <select class="form-select product_id" name="items[][product_id]">${options}</select>
+                    <div class="text-danger error-product_id"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][quantity]" class="form-control quantity" min="1" value="${item?.quantity || 1}">
+                    <div class="text-danger error-quantity"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][purchase_price]" class="form-control purchase_price" step="0.01" value="${item?.purchase_price}">
+                    <div class="text-danger error-purchase_price"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][discount]" class="form-control discount" step="0.01" value="${item?.discount || 0}">
+                    <div class="text-danger error-discount"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="${item?.tax || item?.tax_percent || 0}">
+                    <div class="text-danger error-tax"></div>
+                </td>
                 <td><input type="number" name="items[][tax_amount]" class="form-control tax_amount" step="0.01" readonly value="${item?.tax_amount || 0}"></td>
                 <td><input type="number" name="items[][unit_cost]" class="form-control unit_cost" step="0.01" readonly value="${item?.unit_cost || 0}"></td>
                 <td><input type="number" name="items[][total_cost]" class="form-control total_cost" step="0.01" readonly value="${item?.total_cost || 0}"></td>
@@ -198,9 +233,7 @@
         }
 
         async function populateDropdown(url, elementId, selectedId = null) {
-            const res = await fetch(url, {
-                credentials: 'include'
-            });
+            const res = await fetch(url, { credentials: 'include' });
             const data = await res.json();
             const select = document.getElementById(elementId);
             select.innerHTML = `<option disabled selected>Select ${elementId.replace('_id', '')}</option>`;
@@ -213,38 +246,78 @@
             });
         }
 
-        async function loadProducts(items = []) {
+        async function loadProducts() {
             const res = await fetch('http://127.0.0.1:8000/api/products', {
                 credentials: 'include'
             });
             productsList = await res.json();
-            items.forEach(item => addItemRow(item));
         }
 
         async function loadPurchase() {
             const res = await fetch(`http://127.0.0.1:8000/api/purchases/${purchaseId}`, {
                 credentials: 'include'
             });
-            const data = await res.json();
-
-            document.getElementById('purchase_date').value = new Date(data.purchase_date).toISOString().split('T')[0];
-            document.getElementById('order_discount').value = data.order_discount || 0;
-            document.getElementById('order_tax').value = data.order_tax || 0;
-            document.getElementById('shipping').value = data.shipping || 0;
-            document.getElementById('status').value = data.status;
-            document.getElementById('payment_status').value = data.payment_status;
-
-            await Promise.all([
-                populateDropdown('http://127.0.0.1:8000/api/stores', 'store_id', data.store_id),
-                populateDropdown('http://127.0.0.1:8000/api/vendors', 'vendor_id', data.vendor_id),
-                loadProducts(data.items)
-            ]);
+            purchaseData = await res.json();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadPurchase();
+        async function prefillForm() {
+            if (!purchaseData) return;
 
-            ['order_discount', 'order_tax', 'shipping'].forEach(id => {
+            document.getElementById('purchase_date').value = new Date(purchaseData.purchase_date).toISOString().split('T')[0];
+            document.getElementById('order_discount').value = purchaseData.order_discount || 0;
+            document.getElementById('order_tax').value = purchaseData.order_tax || 0;
+            document.getElementById('shipping').value = purchaseData.shipping || 0;
+            document.getElementById('status').value = purchaseData.status;
+            document.getElementById('payment_status').value = purchaseData.payment_status;
+
+            await Promise.all([
+                populateDropdown('http://127.0.0.1:8000/api/stores', 'store_id', purchaseData.store_id),
+                populateDropdown('http://127.0.0.1:8000/api/vendors', 'vendor_id', purchaseData.vendor_id)
+            ]);
+
+            purchaseData.items.forEach(item => addItemRow(item));
+        }
+
+        function clearValidationErrors() {
+            document.querySelectorAll('.text-danger').forEach(el => el.innerText = '');
+        }
+
+        function displayValidationErrors(errors) {
+            clearValidationErrors();
+
+            Object.entries(errors).forEach(([field, messages]) => {
+                if (field.startsWith("items.")) {
+                    const parts = field.split(".");
+                    const rowIndex = parseInt(parts[1]);
+                    const fieldName = parts[2];
+                    const row = document.querySelectorAll("#items-table tbody tr")[rowIndex];
+                    if (row) {
+                        const errorDiv = row.querySelector(`.error-${fieldName}`);
+                        if (errorDiv) errorDiv.innerText = messages[0];
+                    }
+                } else {
+                    const input = document.getElementById(field);
+                    if (input) {
+                        let errorContainer = input.nextElementSibling;
+                        if (errorContainer && errorContainer.classList.contains("text-danger")) {
+                            errorContainer.innerText = messages[0];
+                        } else {
+                            const div = document.createElement("div");
+                            div.classList.add("text-danger");
+                            div.innerText = messages[0];
+                            input.parentNode.appendChild(div);
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadProducts();
+            await loadPurchase();
+            await prefillForm();
+
+            ['shipping'].forEach(id => {
                 document.getElementById(id).addEventListener('input', updateTotalAmount);
             });
 
@@ -252,6 +325,7 @@
 
             document.getElementById('edit-purchase-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                clearValidationErrors();
 
                 const data = {
                     store_id: document.getElementById('store_id').value,
@@ -270,8 +344,7 @@
                     data.items.push({
                         product_id: row.querySelector('.product_id').value,
                         quantity: parseFloat(row.querySelector('.quantity').value),
-                        purchase_price: parseFloat(row.querySelector('.purchase_price')
-                            .value),
+                        purchase_price: parseFloat(row.querySelector('.purchase_price').value),
                         discount: parseFloat(row.querySelector('.discount').value),
                         tax: parseFloat(row.querySelector('.tax').value),
                         tax_amount: parseFloat(row.querySelector('.tax_amount').value),
@@ -293,7 +366,7 @@
                 const result = await response.json();
 
                 if (response.status === 422) {
-                    alert("Validation error");
+                    displayValidationErrors(result.errors);
                 } else if (response.ok) {
                     window.location.href = "{{ route('purchases.index') }}";
                 } else {
@@ -303,3 +376,5 @@
         });
     </script>
 @endsection
+
+

@@ -41,7 +41,7 @@ class PurchaseController extends Controller
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|exists:stores,id',
             'vendor_id' => 'required|exists:vendors,id',
-            'purchase_date' => 'required|date',
+            'purchase_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:Received,Pending',
             'payment_status' => 'required|in:Paid,Unpaid',
             'order_tax' => 'required|numeric|min:0',
@@ -102,127 +102,127 @@ class PurchaseController extends Controller
             DB::commit();
 
             return response()->json(['message' => 'Purchase created successfully'], 201);
-       } catch (\Exception $e) {
-    DB::rollBack();
-    Log::error('Purchase creation failed', [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
-    return response()->json([
-        'message' => 'Failed to create purchase',
-        'error' => $e->getMessage()
-    ], 500);
-}
-    }
-
-
-
-
-   public function update(Request $request, $id)
-{
-    $purchase = Purchase::findOrFail($id);
-
-    $validator = Validator::make($request->all(), [
-        'store_id' => 'required|exists:stores,id',
-        'vendor_id' => 'required|exists:vendors,id',
-        'purchase_date' => 'required|date',
-        'shipping' => 'nullable|numeric|min:0',
-        'status' => 'required|in:Received,Pending',
-        'payment_status' => 'required|in:Paid,Unpaid',
-
-        'items' => 'required|array|min:1',
-        'items.*.product_id' => 'required|exists:products,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'items.*.purchase_price' => 'required|numeric|min:0',
-        'items.*.discount' => 'nullable|numeric|min:0',
-        'items.*.tax' => 'nullable|numeric|min:0',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation failed',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    $data = $validator->validated();
-
-    try {
-        DB::beginTransaction();
-
-        // Only delete existing purchase items if update is submitted
-        $purchase->items()->delete();
-
-        $orderTax = 0;
-        $orderDiscount = 0;
-        $totalAmount = 0;
-
-        foreach ($data['items'] as $item) {
-            $purchasePrice = $item['purchase_price'];
-            $discount = $item['discount'] ?? 0;
-            $tax = $item['tax'] ?? 0;
-            $quantity = $item['quantity'];
-
-            if ($discount > $purchasePrice) {
-                return response()->json([
-                    'message' => 'Discount cannot be greater than purchase price for a product.',
-                    'product_id' => $item['product_id']
-                ], 422);
-            }
-
-            $priceAfterDiscount = $purchasePrice - $discount;
-            $taxAmount = ($priceAfterDiscount * $tax / 100);
-            $unitCost = $priceAfterDiscount + $taxAmount;
-            $totalCost = $unitCost * $quantity;
-
-            $orderTax += $taxAmount * $quantity;
-            $orderDiscount += $discount * $quantity;
-            $totalAmount += $totalCost;
-
-            PurchaseItem::create([
-                'purchase_id' => $purchase->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $quantity,
-                'purchase_price' => $purchasePrice,
-                'discount' => $discount,
-                'tax_percent' => $tax,
-                'tax_amount' => $taxAmount,
-                'unit_cost' => $unitCost,
-                'total_cost' => $totalCost,
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Purchase creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
+            return response()->json([
+                'message' => 'Failed to create purchase',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+    public function update(Request $request, $id)
+    {
+        $purchase = Purchase::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|exists:stores,id',
+            'vendor_id' => 'required|exists:vendors,id',
+            'purchase_date' => 'required|date|before_or_equal:today',
+            'shipping' => 'nullable|numeric|min:0',
+            'status' => 'required|in:Received,Pending',
+            'payment_status' => 'required|in:Paid,Unpaid',
+
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.purchase_price' => 'required|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.tax' => 'nullable|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $shipping = $data['shipping'] ?? 0;
+        $data = $validator->validated();
 
-        $purchase->update([
-            'store_id' => $data['store_id'],
-            'user_id' => null,
-            'vendor_id' => $data['vendor_id'],
-            'purchase_date' => $data['purchase_date'],
-            'shipping' => $shipping,
-            'status' => $data['status'],
-            'payment_status' => $data['payment_status'],
-            'order_tax' => $orderTax,
-            'order_discount' => $orderDiscount,
-            'total_amount' => $totalAmount + $shipping,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        DB::commit();
+            // Only delete existing purchase items if update is submitted
+            $purchase->items()->delete();
 
-        return response()->json(['message' => 'Purchase updated successfully']);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Purchase update failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+            $orderTax = 0;
+            $orderDiscount = 0;
+            $totalAmount = 0;
 
-        return response()->json([
-            'message' => 'Failed to update purchase',
-            'error' => $e->getMessage()
-        ], 500);
+            foreach ($data['items'] as $item) {
+                $purchasePrice = $item['purchase_price'];
+                $discount = $item['discount'] ?? 0;
+                $tax = $item['tax'] ?? 0;
+                $quantity = $item['quantity'];
+
+                if ($discount > $purchasePrice) {
+                    return response()->json([
+                        'message' => 'Discount cannot be greater than purchase price for a product.',
+                        'product_id' => $item['product_id']
+                    ], 422);
+                }
+
+                $priceAfterDiscount = $purchasePrice - $discount;
+                $taxAmount = ($priceAfterDiscount * $tax / 100);
+                $unitCost = $priceAfterDiscount + $taxAmount;
+                $totalCost = $unitCost * $quantity;
+
+                $orderTax += $taxAmount * $quantity;
+                $orderDiscount += $discount * $quantity;
+                $totalAmount += $totalCost;
+
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $quantity,
+                    'purchase_price' => $purchasePrice,
+                    'discount' => $discount,
+                    'tax_percent' => $tax,
+                    'tax_amount' => $taxAmount,
+                    'unit_cost' => $unitCost,
+                    'total_cost' => $totalCost,
+                ]);
+            }
+
+            $shipping = $data['shipping'] ?? 0;
+
+            $purchase->update([
+                'store_id' => $data['store_id'],
+                'user_id' => null,
+                'vendor_id' => $data['vendor_id'],
+                'purchase_date' => $data['purchase_date'],
+                'shipping' => $shipping,
+                'status' => $data['status'],
+                'payment_status' => $data['payment_status'],
+                'order_tax' => $orderTax,
+                'order_discount' => $orderDiscount,
+                'total_amount' => $totalAmount + $shipping,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Purchase updated successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Purchase update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to update purchase',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     public function destroy($id)
