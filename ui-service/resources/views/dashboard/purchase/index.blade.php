@@ -60,7 +60,7 @@
 @section('js')
     @parent
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const tbody = document.getElementById('purchases-table-body');
             const successMessage = document.getElementById('success-message');
             const successText = document.getElementById('success-text');
@@ -68,9 +68,7 @@
             function showSuccess(message) {
                 successText.textContent = message;
                 successMessage.classList.remove('d-none');
-                successMessage.scrollIntoView({
-                    behavior: 'smooth'
-                });
+                successMessage.scrollIntoView({ behavior: 'smooth' });
 
                 setTimeout(() => {
                     successMessage.classList.add('d-none');
@@ -80,9 +78,9 @@
 
             function loadPurchases() {
                 fetch('http://127.0.0.1:8000/api/purchases', {
-                        method: 'GET',
-                        credentials: 'include'
-                    })
+                    method: 'GET',
+                    credentials: 'include'
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -99,55 +97,62 @@
 
                         data.forEach(purchase => {
                             const statusColor = purchase.status === 'Received' ? 'success' :
-                                purchase.status === 'Ordered' ? 'warning' :
-                                'primary';
+                                purchase.status === 'Pending' ? 'warning' : 'primary';
 
                             const paymentStatusColor = purchase.payment_status === 'Paid' ? 'success' :
-                                purchase.payment_status === 'Unpaid' ? 'danger' :
-                                'warning';
+                                purchase.payment_status === 'Unpaid' ? 'danger' : 'warning';
+
+                            const total = parseFloat(purchase.total_amount || 0).toFixed(2);
+                            let paid = 0;
+                            let due = 0;
+
+                            // 👇 Logic as per your requirement
+                            if (purchase.payment_status === 'Paid') {
+                                paid = total;
+                                due = 0;
+                            } else if (purchase.payment_status === 'Unpaid') {
+                                paid = 0;
+                                due = total;
+                            }
 
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                        <td>${purchase.vendor?.name || 'N/A'}</td>
-                        <td>${purchase.reference || 'N/A'}</td>
-                        <td>${purchase.purchase_date || 'N/A'}</td>
-                        <td><span class="badge bg-${statusColor}">${purchase.status || 'N/A'}</span></td>
-                        <td>${purchase.total_amount || 0}</td>
-                        <td>${purchase.paid_amount || 0}</td>
-                        <td>${purchase.due_amount || 0}</td>
-                        <td><span class="badge bg-${paymentStatusColor}">${purchase.payment_status || 'N/A'}</span></td>
-                        <td>
-                            <a href="/purchases/edit/${purchase.id}" class="btn btn-sm btn-primary">Edit</a>
-                            <button class="btn btn-sm btn-danger" onclick="deletePurchase(${purchase.id})">Delete</button>
-                        </td>
-                    `;
+                                <td>${purchase.vendor?.name || 'N/A'}</td>
+                                <td>${purchase.reference || 'N/A'}</td>
+                                <td>${purchase.purchase_date || 'N/A'}</td>
+                                <td><span class="badge bg-${statusColor}">${purchase.status || 'N/A'}</span></td>
+                                <td>$${total}</td>
+                                <td>$${paid}</td>
+                                <td>$${due}</td>
+                                <td><span class="badge bg-${paymentStatusColor}">${purchase.payment_status || 'N/A'}</span></td>
+                                <td>
+                                    <a href="/purchases/edit/${purchase.id}" class="btn btn-sm btn-primary">Edit</a>
+                                    <button class="btn btn-sm btn-danger" onclick="deletePurchase(${purchase.id})">Delete</button>
+                                </td>
+                            `;
                             tbody.appendChild(row);
                         });
                     })
                     .catch(error => {
-                        tbody.innerHTML =
-                            `<tr><td colspan="9" class="text-danger">Error fetching purchases: ${error.message}</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="9" class="text-danger">Error fetching purchases: ${error.message}</td></tr>`;
                         console.error('Error fetching purchases:', error);
                     });
             }
 
-            window.deletePurchase = function(purchaseId) {
+            window.deletePurchase = function (purchaseId) {
                 fetch(`http://127.0.0.1:8000/api/purchases/${purchaseId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                        credentials: 'include'
-                    })
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'include'
+                })
                     .then(response => response.json()
                         .then(data => ({
                             status: response.status,
                             body: data
                         })))
-                    .then(({
-                        status,
-                        body
-                    }) => {
+                    .then(({ status, body }) => {
                         if (status === 200) {
                             loadPurchases();
                             showSuccess('Purchase deleted successfully!');

@@ -8,13 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Purchase extends Model
 {
-     protected $fillable = [
-        'store_id',
-        'user_id',
-        'vendor_id',
-        'purchase_date',
-        'total_amount',
-    ];
+protected $fillable = [
+    'store_id', 'user_id', 'vendor_id', 'purchase_date',
+    'shipping', 'status', 'payment_status',
+    'order_tax', 'order_discount', 'total_amount'
+];
 
     public function items()
     {
@@ -36,4 +34,3 @@ class Purchase extends Model
         return $this->belongsTo(Vendor::class);
     }
 }
-
