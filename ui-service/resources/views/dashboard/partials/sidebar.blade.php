@@ -160,7 +160,7 @@
 
                                 </a>
                             </li>
-                            <li class="sidebar-item">
+                            {{-- <li class="sidebar-item">
                                 <a class="sidebar-link justify-content-between" href="#">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
@@ -170,7 +170,7 @@
                                     </div>
 
                                 </a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                     {{-- <li class="sidebar-item">

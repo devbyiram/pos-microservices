@@ -24,21 +24,9 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="cost_price">Cost Price</label>
-                                <input type="number" class="form-control" name="cost_price" id="cost_price">
-                                <div class="text-danger" id="error-cost_price"></div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="sale_price">Sale Price</label>
-                                <input type="number" class="form-control" name="sale_price" id="sale_price">
-                                <div class="text-danger" id="error-sale_price"></div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="stock_quantity">Stock Quantity</label>
-                                <input type="number" class="form-control" name="stock_quantity" id="stock_quantity">
-                                <div class="text-danger" id="error-stock_quantity"></div>
+                                <label for="item_code">Item Code</label>
+                                <input type="text" class="form-control" name="item_code" id="item_code">
+                                <div class="text-danger" id="error-item_code"></div>
                             </div>
 
                             <div class="form-group mb-3">
@@ -81,7 +69,7 @@
                                 <div class="text-danger" id="error-vendor_id"></div>
                             </div>
 
-                              <div class="form-group mb-3">
+                            <div class="form-group mb-3">
                                 <label for="status">Status</label>
                                 <select class="form-select" name="status" id="status">
                                     <option value="" disabled selected>Select status</option>
@@ -135,9 +123,7 @@
             const product = await res.json();
 
             document.getElementById('name').value = product.name;
-            document.getElementById('cost_price').value = product.cost_price;
-            document.getElementById('sale_price').value = product.sale_price;
-            document.getElementById('stock_quantity').value = product.stock_quantity;
+            document.getElementById('item_code').value = product.item_code || '';
             document.getElementById('status').value = product.status;
 
             await Promise.all([
@@ -158,8 +144,9 @@
     document.getElementById('edit-product-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        ['name', 'cost_price', 'sale_price', 'stock_quantity', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id','status'].forEach(field => {
-            document.getElementById(`error-${field}`).innerText = '';
+        ['name', 'item_code', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id', 'status'].forEach(field => {
+            const errorDiv = document.getElementById(`error-${field}`);
+            if (errorDiv) errorDiv.innerText = '';
         });
 
         const formData = new FormData(this);
@@ -182,7 +169,8 @@
             if (!response.ok) {
                 if (result.errors) {
                     Object.entries(result.errors).forEach(([field, messages]) => {
-                        document.getElementById(`error-${field}`).innerText = messages[0];
+                        const errorDiv = document.getElementById(`error-${field}`);
+                        if (errorDiv) errorDiv.innerText = messages[0];
                     });
                 } else {
                     alert('Error: ' + result.message);

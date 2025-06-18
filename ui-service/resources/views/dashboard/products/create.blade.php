@@ -9,15 +9,11 @@
             <div class="card">
                 <div class="card-body">
                     <a href="{{ route('products.index') }}" class="btn btn-primary mb-4">Back</a>
-                    <h5 class="card-title fw-semibold mb-4">Add Product</h5>
-
-                    <div id="success-message" class="alert alert-success d-none">
-                        <span id="success-text"></span>
-                    </div>
+                    <h5 class="card-title fw-semibold mb-4">Create Product</h5>
 
                     <div class="card">
                         <div class="card-body">
-                            <form id="create-product-form">
+                            <form id="create-product-form" enctype="multipart/form-data" method="POST">
                                 @csrf
 
                                 <div class="form-group mb-3">
@@ -27,49 +23,69 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="cost_price">Cost Price</label>
-                                    <input type="number" step="0.01" class="form-control" name="cost_price"
-                                        id="cost_price">
-                                    <div class="text-danger" id="error-cost_price"></div>
+                                    <label for="item_code">Item Code</label>
+                                    <input type="text" class="form-control" name="item_code" id="item_code">
+                                    <div class="text-danger" id="error-item_code"></div>
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="sale_price">Sale Price</label>
-                                    <input type="number" step="0.01" class="form-control" name="sale_price"
-                                        id="sale_price">
-                                    <div class="text-danger" id="error-sale_price"></div>
+                                    <label for="store_id">Store</label>
+                                    <select class="form-select" name="store_id" id="store_id">
+                                        <option value="" disabled selected>Select Store</option>
+                                    </select>
+                                    <div class="text-danger" id="error-store_id"></div>
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="stock_quantity">Stock Quantity</label>
-                                    <input type="number" class="form-control" name="stock_quantity" id="stock_quantity">
-                                    <div class="text-danger" id="error-stock_quantity"></div>
+                                    <label for="user_id">User</label>
+                                    <select class="form-select" name="user_id" id="user_id">
+                                        <option value="" disabled selected>Select User</option>
+                                    </select>
+                                    <div class="text-danger" id="error-user_id"></div>
                                 </div>
 
-                                <!-- Dropdowns -->
-                                @foreach (['store', 'user', 'category', 'brand', 'vendor'] as $field)
-                                    <div class="form-group mb-3">
-                                        <label for="{{ $field }}_id">{{ ucfirst($field) }}</label>
-                                        <select class="form-select" id="{{ $field }}_id"
-                                            name="{{ $field }}_id">
-                                            <option value="" disabled selected>Select {{ ucfirst($field) }}</option>
-                                        </select>
-                                        <div class="text-danger" id="error-{{ $field }}_id"></div>
-                                    </div>
-                                @endforeach
+                                <div class="form-group mb-3">
+                                    <label for="category_id">Category</label>
+                                    <select class="form-select" name="category_id" id="category_id">
+                                        <option value="" disabled selected>Select Category</option>
+                                    </select>
+                                    <div class="text-danger" id="error-category_id"></div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="brand_id">Brand</label>
+                                    <select class="form-select" name="brand_id" id="brand_id">
+                                        <option value="" disabled selected>Select Brand</option>
+                                    </select>
+                                    <div class="text-danger" id="error-brand_id"></div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="vendor_id">Vendor</label>
+                                    <select class="form-select" name="vendor_id" id="vendor_id">
+                                        <option value="" disabled selected>Select Vendor</option>
+                                    </select>
+                                    <div class="text-danger" id="error-vendor_id"></div>
+                                </div>
 
                                 <div class="form-group mb-3">
                                     <label for="status">Status</label>
                                     <select class="form-select" name="status" id="status">
-                                        <option value="" disabled selected>Select status</option>
+                                        <option value="" disabled selected>Select Status</option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
                                     </select>
                                     <div class="text-danger" id="error-status"></div>
                                 </div>
 
+                                <div class="form-group mb-3">
+                                    <label for="images">Product Images</label>
+                                    <input type="file" class="form-control" name="images[]" id="images" multiple>
+                                    <div class="text-danger" id="error-images"></div>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary">Create Product</button>
-                                <button type="reset" class="btn btn-secondary">Cancel</button>
+                                <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
                         </div>
                     </div>
@@ -82,73 +98,87 @@
 @section('js')
     @parent
     <script>
-        async function loadDropdowns() {
-            const endpoints = {
-                store: 'stores',
-                user: 'users',
-                category: 'categories',
-                brand: 'brands',
-                vendor: 'vendors'
-            };
-
-            for (const [key, endpoint] of Object.entries(endpoints)) {
-                try {
-                    const res = await fetch(`http://127.0.0.1:8000/api/${endpoint}`, {
-                        credentials: 'include'
-                    });
-                    const data = await res.json();
-                    const select = document.getElementById(`${key}_id`);
-                    data.forEach(item => {
-                        select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
-                    });
-                } catch (err) {
-                    console.error(`Failed to load ${key}:`, err);
-                }
-            }
+        async function populateDropdown(url, elementId) {
+            const res = await fetch(url, {
+                credentials: 'include'
+            });
+            const data = await res.json();
+            const select = document.getElementById(elementId);
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.text = item.name;
+                select.appendChild(option);
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', loadDropdowns);
+        // Load all dropdowns
+        async function loadDropdowns() {
+            await Promise.all([
+                populateDropdown('http://127.0.0.1:8000/api/stores', 'store_id'),
+                populateDropdown('http://127.0.0.1:8000/api/users', 'user_id'),
+                populateDropdown('http://127.0.0.1:8000/api/categories', 'category_id'),
+                populateDropdown('http://127.0.0.1:8000/api/brands', 'brand_id'),
+                populateDropdown('http://127.0.0.1:8000/api/vendors', 'vendor_id')
+            ]);
+        }
 
+        loadDropdowns();
+
+        // Form submission
         document.getElementById('create-product-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            ['name', 'cost_price', 'sale_price', 'stock_quantity', 'store_id', 'user_id', 'category_id',
-                'brand_id', 'vendor_id', 'status'
+            ['name', 'item_code', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id', 'status',
+                'images'
             ]
-            .forEach(f => document.getElementById(`error-${f}`).innerText = '');
+            .forEach(field => {
+                document.getElementById(`error-${field}`).innerText = '';
+            });
 
-            const formData = new FormData(this);
-            const jsonData = Object.fromEntries(formData.entries());
-            jsonData.status = $('#status').val();
+            const formData = new FormData();
+            const fields = ['name', 'item_code', 'store_id', 'user_id', 'category_id', 'brand_id', 'vendor_id',
+                'status'
+            ];
+
+            formData.append('name', document.getElementById('name').value);
+            formData.append('item_code', document.getElementById('item_code').value);
+            formData.append('store_id', document.getElementById('store_id').value);
+            formData.append('user_id', document.getElementById('user_id').value);
+            formData.append('category_id', document.getElementById('category_id').value);
+            formData.append('brand_id', document.getElementById('brand_id').value);
+            formData.append('vendor_id', document.getElementById('vendor_id').value);
+            formData.append('status', document.getElementById('status').value);
+
+            // Append files
+            const files = document.getElementById('images').files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images[' + i + ']', files[i]); // NOT images[], must use indexed keys
+            }
 
             try {
                 const response = await fetch('http://127.0.0.1:8000/api/products', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(jsonData)
+                    body: formData,
+                    credentials: 'include'
                 });
 
                 const result = await response.json();
 
-                if (response.status === 422) {
-                    Object.entries(result.errors).forEach(([field, messages]) => {
-                        document.getElementById(`error-${field}`).innerText = messages.join(', ');
-                    });
-                } else if (response.ok) {
-                    document.getElementById('success-text').innerText = 'Product created successfully!';
-                    document.getElementById('success-message').classList.remove('d-none');
-                    this.reset();
-                    setTimeout(() => document.getElementById('success-message').classList.add('d-none'), 5000);
-                    $('#status').val('').trigger('change');
+                if (!response.ok) {
+                    if (result.errors) {
+                        Object.entries(result.errors).forEach(([field, messages]) => {
+                            document.getElementById(`error-${field}`).innerText = messages[0];
+                        });
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
                 } else {
-                    alert('Error: ' + (result.message || 'Something went wrong.'));
+                    window.location.href = '/products';
                 }
             } catch (err) {
-                alert('Network/server error');
+                console.error('Create failed:', err);
+                alert('Network or server error.');
             }
         });
     </script>
