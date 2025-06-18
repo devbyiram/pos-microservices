@@ -79,7 +79,7 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="order_discount">Order Discount</label>
                                         <input type="number" class="form-control" id="order_discount"
-                                            name="order_discount">
+                                            name="order_discount" readonly>
                                         <div class="text-danger" id="error-order_discount"></div>
                                     </div>
 
@@ -124,64 +124,65 @@
         let purchaseData = null;
 
         function updateTotalAmount() {
-            let subtotal = 0;
-            let totalOrderTax = 0;
-            let totalOrderDiscount = 0;
+    let subtotal = 0;
+    let totalOrderTax = 0;
+    let totalOrderDiscount = 0;
 
-            document.querySelectorAll('#items-table tbody tr').forEach(row => {
-                const qtyInput = row.querySelector('.quantity');
-                const priceInput = row.querySelector('.purchase_price');
-                const productInput = row.querySelector('.product_id');
+    document.querySelectorAll('#items-table tbody tr').forEach(row => {
+        const qtyInput = row.querySelector('.quantity');
+        const priceInput = row.querySelector('.purchase_price');
+        const productInput = row.querySelector('.product_id');
 
-                const qty = parseFloat(qtyInput.value) || 0;
-                const price = parseFloat(priceInput.value);
-                const discount = parseFloat(row.querySelector('.discount').value) || 0;
-                const tax = parseFloat(row.querySelector('.tax').value) || 0;
+        const qty = parseFloat(qtyInput.value) || 0;
+        const price = parseFloat(priceInput.value);
+        const discount = parseFloat(row.querySelector('.discount').value) || 0;
+        const tax = parseFloat(row.querySelector('.tax').value) || 0;
 
-                // Error divs
-                const priceError = row.querySelector('.error-purchase_price');
-                const qtyError = row.querySelector('.error-quantity');
-                const productError = row.querySelector('.error-product_id');
+        // Error divs
+        const priceError = row.querySelector('.error-purchase_price');
+        const qtyError = row.querySelector('.error-quantity');
+        const productError = row.querySelector('.error-product_id');
 
-                // Clear existing error messages
-                if (priceError) priceError.innerText = '';
-                if (qtyError) qtyError.innerText = '';
-                if (productError) productError.innerText = '';
+        // Clear existing error messages
+        priceError.innerText = '';
+        qtyError.innerText = '';
+        productError.innerText = '';
 
-                // Show validation messages
-                if (!productInput.value) {
-                    if (productError) productError.innerText = 'Please select a product';
-                }
+        // Show validation messages
+        // if (!productInput.value) {
+        //     productError.innerText = 'Please select a product';
+        // }
 
-                if (qty <= 0 && qtyError) {
-                    qtyError.innerText = 'Quantity is required';
-                }
+        // if (qty <= 0) {
+        //     qtyError.innerText = 'Quantity is required';
+        // }
 
-                if (price <= 1 && priceError) {
-                    priceError.innerText = 'Purchase price is required';
-                }
+        // if (price <= 1) {
+        //     priceError.innerText = 'Purchase price is required';
+        // }
 
-                const itemDiscount = discount * qty;
-                const taxAmount = ((price - discount) * tax / 100) * qty;
-                const unitCost = (price - discount) + ((price - discount) * tax / 100);
-                const totalCost = unitCost * qty;
+        const discounted = price - discount;
+        const taxPerUnit = discounted * (tax / 100);
+        const taxAmount = taxPerUnit * qty;
+        const unitCost = discounted + taxPerUnit;
+        const total = unitCost * qty;
 
-                row.querySelector('.tax_amount').value = taxAmount.toFixed(2);
-                row.querySelector('.unit_cost').value = unitCost.toFixed(2);
-                row.querySelector('.total_cost').value = totalCost.toFixed(2);
+        row.querySelector('.tax_amount').value = taxAmount.toFixed(2);
+        row.querySelector('.unit_cost').value = unitCost.toFixed(2);
+        row.querySelector('.total_cost').value = total.toFixed(2);
 
-                subtotal += totalCost;
-                totalOrderTax += taxAmount;
-                totalOrderDiscount += itemDiscount;
-            });
+        subtotal += total;
+        totalOrderTax += taxAmount;
+        totalOrderDiscount += discount * qty;
+    });
 
-            const shipping = parseFloat(document.getElementById('shipping').value) || 0;
-            const total = subtotal + shipping;
+    const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+    const total = subtotal + shipping;
 
-            document.getElementById('order_discount').value = totalOrderDiscount.toFixed(2);
-            document.getElementById('order_tax').value = totalOrderTax.toFixed(2);
-            document.getElementById('total_amount').value = total.toFixed(2);
-        }
+    document.getElementById('order_discount').value = totalOrderDiscount.toFixed(2);
+    document.getElementById('order_tax').value = totalOrderTax.toFixed(2);
+    document.getElementById('total_amount').value = total.toFixed(2);
+}
 
         function addItemRow(item = null) {
             const tbody = document.querySelector('#items-table tbody');
@@ -201,7 +202,7 @@
                     <div class="text-danger error-quantity"></div>
                 </td>
                 <td>
-                    <input type="number" name="items[][purchase_price]" class="form-control purchase_price" step="0.01" value="${item?.purchase_price}">
+                    <input type="number" name="items[][purchase_price]" class="form-control purchase_price" step="0.01" value="${item?.purchase_price || 0}">
                     <div class="text-danger error-purchase_price"></div>
                 </td>
                 <td>
@@ -212,9 +213,18 @@
                     <input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="${item?.tax || item?.tax_percent || 0}">
                     <div class="text-danger error-tax"></div>
                 </td>
-                <td><input type="number" name="items[][tax_amount]" class="form-control tax_amount" step="0.01" readonly value="${item?.tax_amount || 0}"></td>
-                <td><input type="number" name="items[][unit_cost]" class="form-control unit_cost" step="0.01" readonly value="${item?.unit_cost || 0}"></td>
-                <td><input type="number" name="items[][total_cost]" class="form-control total_cost" step="0.01" readonly value="${item?.total_cost || 0}"></td>
+                <td>
+                    <input type="number" name="items[][tax_amount]" class="form-control tax_amount" step="0.01" readonly value="${item?.tax_amount || 0}">
+                    <div class="text-danger error-tax_amount"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][unit_cost]" class="form-control unit_cost" step="0.01" readonly value="${item?.unit_cost || 0}">
+                      <div class="text-danger error-unit_cost"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][total_cost]" class="form-control total_cost" step="0.01" readonly value="${item?.total_cost || 0}">
+                    <div class="text-danger error-total_cost"></div>
+                </td>
                 <td><button type="button" class="btn btn-sm btn-danger remove-item-btn">X</button></td>
             `;
 
@@ -286,38 +296,27 @@
             clearValidationErrors();
 
             Object.entries(errors).forEach(([field, messages]) => {
-                const fieldParts = field.split(".");
-                
-                // Handle nested fields like items.0.product_id
-                if (fieldParts.length >= 3 && fieldParts[0] === "items") {
-                    const rowIndex = parseInt(fieldParts[1]);
-                    const fieldName = fieldParts.slice(2).join("_");
+                if (field.startsWith("items.")) {
+                    const parts = field.split(".");
+                    const rowIndex = parseInt(parts[1]);
+                    const fieldName = parts[2];
                     const row = document.querySelectorAll("#items-table tbody tr")[rowIndex];
                     if (row) {
-                        let errorDiv = row.querySelector(`.error-${fieldName}`);
-                        if (!errorDiv) {
-                            const input = row.querySelector(`.${fieldName}`);
-                            if (input) {
-                                errorDiv = document.createElement("div");
-                                errorDiv.classList.add("text-danger", `error-${fieldName}`);
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        }
-                        if (errorDiv) {
-                            errorDiv.innerText = messages[0];
-                        }
+                        const errorDiv = row.querySelector(`.error-${fieldName}`);
+                        if (errorDiv) errorDiv.innerText = messages[0];
                     }
                 } else {
-                    // Handle scalar fields like store_id, shipping, etc.
                     const input = document.getElementById(field);
                     if (input) {
                         let errorContainer = input.nextElementSibling;
-                        if (!errorContainer || !errorContainer.classList.contains("text-danger")) {
-                            errorContainer = document.createElement("div");
-                            errorContainer.classList.add("text-danger");
-                            input.parentNode.appendChild(errorContainer);
+                        if (errorContainer && errorContainer.classList.contains("text-danger")) {
+                            errorContainer.innerText = messages[0];
+                        } else {
+                            const div = document.createElement("div");
+                            div.classList.add("text-danger");
+                            div.innerText = messages[0];
+                            input.parentNode.appendChild(div);
                         }
-                        errorContainer.innerText = messages[0];
                     }
                 }
             });
@@ -334,7 +333,7 @@
 
             document.getElementById('add-item-btn').addEventListener('click', () => addItemRow());
 
-            document.getElementById('edit-purchase-form').addEventListener('submit', async function (e) {
+            document.getElementById('edit-purchase-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 clearValidationErrors();
 

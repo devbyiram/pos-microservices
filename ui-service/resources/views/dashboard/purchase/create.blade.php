@@ -76,32 +76,33 @@
                         </table>
                         <div class="text-danger mb-2" id="error-items"></div>
                         <button type="button" class="btn btn-sm btn-info mb-3" id="add-item-btn">Add Item</button>
-
-                        <div class="form-group mb-3">
+                          <div class="row">
+                        <div class="col-md-4 mb-3">
                             <label for="order_tax">Order Tax</label>
                             <input type="number" step="0.01" class="form-control bg-light" id="order_tax"
                                 name="order_tax" readonly>
                             <div class="text-danger" id="error-order_tax"></div>
                         </div>
 
-                        <div class="form-group mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="order_discount">Order Discount</label>
                             <input type="number" step="0.01" class="form-control bg-light" id="order_discount"
                                 name="order_discount" readonly>
                             <div class="text-danger" id="error-order_discount"></div>
                         </div>
 
-                        <div class="form-group mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="shipping">Shipping</label>
                             <input type="number" step="0.01" class="form-control" id="shipping" name="shipping">
                             <div class="text-danger" id="error-shipping"></div>
                         </div>
 
-                        <div class="form-group mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="total_amount">Total Amount</label>
                             <input type="number" step="0.01" class="form-control" id="total_amount" name="total_amount"
                                 readonly>
                             <div class="text-danger" id="error-total_amount"></div>
+                        </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Create Purchase</button>
@@ -157,23 +158,24 @@
         const tax = parseFloat(row.querySelector('.tax').value) || 0;
 
         // Validate purchase price
-        if (price <= 0) {
-            priceError.innerText = 'Purchase price is required';
-        } else {
-            priceError.innerText = '';
-        }
+        // if (price <= 0) {
+        //     priceError.innerText = 'Purchase price is required';
+        // } else {
+        //     priceError.innerText = '';
+        // }
 
         const discounted = price - discount;
-        const taxAmount = discounted * (tax / 100);
-        const unitCost = discounted + taxAmount;
-        const total = qty * unitCost;
+        const taxPerUnit = discounted * (tax / 100);
+        const taxAmount = taxPerUnit * qty;
+        const unitCost = discounted + taxPerUnit;
+        const total = unitCost * qty;
 
         row.querySelector('.tax-amount').value = taxAmount.toFixed(2);
         row.querySelector('.unit-cost').value = unitCost.toFixed(2);
         row.querySelector('.total-cost').value = total.toFixed(2);
 
         grandTotal += total;
-        totalTax += taxAmount * qty;
+        totalTax += taxAmount;
         totalDiscount += discount * qty;
     });
 
@@ -189,22 +191,43 @@
             const tbody = document.querySelector('#items-table tbody');
             const row = document.createElement('tr');
             row.innerHTML = `
-        <td><select class="form-select product_id" name="items[][product_id]">
-            ${productsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-        </select></td>
-        <td><input type="number" name="items[][quantity]" class="form-control quantity" value="1" min="1"></td>
-        <td>
-    <input type="number" name="items[][purchase_price]" class="form-control price" step="0.01" value="0.00">
-    <div class="text-danger price-error"></div>
-</td>
+                <td>
+                    <select class="form-select product_id" name="items[][product_id]">
+                        ${productsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                    </select>
+                    <div class="text-danger error-product_id"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][quantity]" class="form-control quantity" value="1" min="1">
+                    <div class="text-danger error-quantity"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][purchase_price]" class="form-control price" step="0.01" value="0.00">
+                    <div class="text-danger error-purchase_price"></div>
+                </td>
 
-        <td><input type="number" name="items[][discount]" class="form-control discount" step="0.01" value="0.00"></td>
-        <td><input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="0.00"></td>
-        <td><input type="text" name="items[][tax_amount]" class="form-control tax-amount" readonly></td>
-        <td><input type="text" name="items[][unit_cost]" class="form-control unit-cost" readonly></td>
-        <td><input type="text" name="items[][total_cost]" class="form-control total-cost" readonly></td>
-        <td><button type="button" class="btn btn-sm btn-danger remove-item-btn">X</button></td>
-        `;
+                <td>
+                    <input type="number" name="items[][discount]" class="form-control discount" step="0.01" value="0.00">
+                    <div class="text-danger error-discount"></div>
+                </td>
+                <td>
+                    <input type="number" name="items[][tax]" class="form-control tax" step="0.01" value="0.00">
+                    <div class="text-danger error-tax"></div>
+                </td>
+                <td>
+                    <input type="text" name="items[][tax_amount]" class="form-control tax-amount" readonly>
+                    <div class="text-danger error-tax_amount"></div>
+                </td>
+                <td>
+                    <input type="text" name="items[][unit_cost]" class="form-control unit-cost" readonly>
+                    <div class="text-danger error-unit_cost"></div>
+                </td>
+                <td>
+                    <input type="text" name="items[][total_cost]" class="form-control total-cost" readonly>
+                    <div class="text-danger error-total_cost"></div>
+                </td>
+                <td><button type="button" class="btn btn-sm btn-danger remove-item-btn">X</button></td>
+            `;
             tbody.appendChild(row);
             row.querySelectorAll('input, select').forEach(input => {
                 input.addEventListener('input', updateTotalAmount);
@@ -220,11 +243,38 @@
             document.querySelectorAll('[id^="error-"]').forEach(el => el.innerText = '');
         }
 
-        function showErrors(errors) {
-            for (const field in errors) {
-                const errorEl = document.getElementById(`error-${field.replace(/\./g, '-')}`);
-                if (errorEl) errorEl.innerText = errors[field][0];
-            }
+        function displayValidationErrors(errors) {
+            clearValidationErrors();
+
+            Object.entries(errors).forEach(([field, messages]) => {
+                if (field.startsWith("items.")) {
+                    const parts = field.split(".");
+                    const rowIndex = parseInt(parts[1]);
+                    const fieldName = parts[2];
+                    const row = document.querySelectorAll("#items-table tbody tr")[rowIndex];
+                    if (row) {
+                        const errorDiv = row.querySelector(`.error-${fieldName}`);
+                        if (errorDiv) errorDiv.innerText = messages[0];
+                    }
+                } else {
+                    const input = document.getElementById(field);
+                    if (input) {
+                        let errorContainer = input.nextElementSibling;
+                        if (errorContainer && errorContainer.classList.contains("text-danger")) {
+                            errorContainer.innerText = messages[0];
+                        } else {
+                            const div = document.createElement("div");
+                            div.classList.add("text-danger");
+                            div.innerText = messages[0];
+                            input.parentNode.appendChild(div);
+                        }
+                    }
+                }
+            });
+        }
+
+        function clearValidationErrors() {
+            document.querySelectorAll('.text-danger').forEach(el => el.innerText = '');
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -287,7 +337,7 @@
 
                     const result = await response.json();
                     if (response.status === 422) {
-                        showErrors(result.errors);
+                        displayValidationErrors(result.errors);
                     } else if (response.ok) {
                         document.getElementById('success-text').innerText =
                             'Purchase created successfully!';
