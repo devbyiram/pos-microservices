@@ -153,8 +153,8 @@
             // Append files
             const files = document.getElementById('images').files;
             for (let i = 0; i < files.length; i++) {
-                formData.append('images[' + i + ']', files[i]); // NOT images[], must use indexed keys
-            }
+                formData.append('images[]', files[i]);
+          }
 
             try {
                 const response = await fetch('http://127.0.0.1:8000/api/products', {
