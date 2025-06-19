@@ -215,19 +215,23 @@ class ProductController extends Controller
     }
 
 
-    public function destroy($id)
-    {
-        $product = Product::findOrFail($id);
+public function destroy($id)
+{
+    $product = Product::findOrFail($id);
 
-        // Delete associated images from storage and DB
-        foreach ($product->images as $image) {
-            $storagePath = str_replace('/storage/', '', $image->image); // Convert public URL to storage path
-            Storage::disk('public')->delete($storagePath); // Correct relative path
-            $image->delete();
-        }
-
-        $product->delete();
-
-        return response()->json(['message' => 'Product deleted successfully']);
+    // Delete associated images from storage and DB
+    foreach ($product->images as $image) {
+        $storagePath = str_replace('/storage/', '', $image->image);
+        Storage::disk('public')->delete($storagePath);
+        $image->delete();
     }
+
+    // Delete product variants
+    ProductVariant::where('product_id', $product->id)->delete();
+
+    // Delete the product
+    $product->delete();
+
+    return response()->json(['message' => 'Product deleted successfully']);
+}
 }
