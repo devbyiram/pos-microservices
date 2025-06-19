@@ -37,4 +37,11 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
+
+    public function singlevariant(){
+        return $this->hasOne(ProductVariant::class);
+    }
+    public function multiplevariants(){
+        return $this->hasMany(ProductVariant::class);
+    }
 }

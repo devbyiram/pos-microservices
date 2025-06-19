@@ -31,11 +31,6 @@
                                         <input type="text" class="form-control" name="item_code" id="item_code">
                                         <div class="text-danger" id="error-item_code"></div>
                                     </div>
-                                    <div class="form-group mb-3">
-                                        <label for="sku">SKU</label>
-                                        <input type="text" class="form-control" name="sku" id="sku">
-                                        <div class="text-danger" id="error-sku"></div>
-                                    </div>
 
                                     <div class="form-group mb-3">
                                         <label for="store_id">Store</label>
@@ -101,6 +96,11 @@
 
                                     <div id="single-product-fields">
                                         <div class="row g-3">
+                                             <div class="col-lg-4">
+                                            <label for="sku">SKU</label>
+                                            <input type="text" class="form-control" name="sku" id="sku">
+                                            <div class="text-danger" id="error-sku"></div>
+                                        </div>
                                             <div class="col-lg-4">
                                                 <label for="quantity">Quantity <span class="text-danger">*</span></label>
                                                 <input type="number" class="form-control" name="quantity" id="quantity" min="0">

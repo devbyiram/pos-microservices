@@ -24,7 +24,8 @@ class ProductController extends Controller
             'category:id,name',
             'brand:id,name',
             'vendor:id,name',
-            'images:id,product_id,image'
+            'images:id,product_id,image',
+            
         ])->get();
 
         return response()->json($products);
