@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Str;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use App\Models\ProductVariant;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -70,7 +71,14 @@ class ProductController extends Controller
             'vendor_id' => 'nullable|integer|exists:vendors,id',
             'status' => 'required|in:0,1',
             'images' => 'required|array',
-            'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+            'price' => 'required_if:product_type,single|numeric|min:0',
+            'quantity' => 'required_if:product_type,single|integer|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'tax_type' => 'nullable|in:percentage,fixed',
+            'discount_type' => 'nullable|in:percentage,fixed',
+            'discount_value' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -92,82 +100,95 @@ class ProductController extends Controller
                 ]);
             }
         }
+
+        if ($request->product_type === 'single') {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'sku' => $product->item_code,
+                'price' => $request->price,
+                'stock_quantity' => $request->quantity,
+                'tax' => $request->tax,
+                'tax_type' => $request->tax_type,
+                'discount' => $request->discount_value,
+                'discount_type' => $request->discount_type,
+            ]);
+        }
         return response()->json(['message' => 'Product created successfully'], 201);
     }
 
-  public function update(Request $request, $id)
-{
-    $product = Product::findOrFail($id);
-    Log::info('Files:', $request->allFiles());
+    public function update(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        Log::info('Files:', $request->allFiles());
 
-    $validator = Validator::make($request->all(), [
-        'store_id' => 'required|integer|exists:stores,id',
-        'user_id' => 'required|integer|exists:users,id',
-        'name' => [
-            'required',
-            'string',
-            'max:255',
-            Rule::unique('products')->ignore($product->id)->where(fn($query) => $query->where('store_id', $request->store_id)),
-        ],
-        'item_code' => [
-            'required',
-            'string',
-            'max:255',
-            Rule::unique('products')->ignore($product->id)->where(fn($query) => $query->where('store_id', $request->store_id)),
-        ],
-        'category_id' => 'nullable|integer|exists:categories,id',
-        'brand_id' => 'nullable|integer|exists:brands,id',
-        'vendor_id' => 'nullable|integer|exists:vendors,id',
-        'status' => 'required|in:0,1',
-        'images' => 'nullable|array',
-        'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
+        $validator = Validator::make($request->all(), [
+            'store_id' => 'required|integer|exists:stores,id',
+            'user_id' => 'required|integer|exists:users,id',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products')->ignore($product->id)->where(fn($query) => $query->where('store_id', $request->store_id)),
+            ],
+            'item_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('products')->ignore($product->id)->where(fn($query) => $query->where('store_id', $request->store_id)),
+            ],
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'vendor_id' => 'nullable|integer|exists:vendors,id',
+            'status' => 'required|in:0,1',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
-    }
-
-    $product->update($validator->validated());
-
-    // ✅ Remove old images if new ones are provided
-    if ($request->hasFile('images')) {
-        $productImages = ProductImage::where('product_id', $product->id)->get();
-        foreach ($productImages as $productImage) {
-            $imagePath = str_replace('/storage/', '', $productImage->image);
-            Storage::disk('public')->delete($imagePath);
-            $productImage->delete();
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
         }
 
-        // ✅ Upload new ones
-        foreach ($request->file('images') as $image) {
-            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $storedPath = $image->storeAs('uploads/products', $filename, 'public');
-            $path = Storage::url($storedPath);
+        $product->update($validator->validated());
 
-            ProductImage::create([
-                'product_id' => $product->id,
-                'image' => $path,
-            ]);
+        // ✅ Remove old images if new ones are provided
+        if ($request->hasFile('images')) {
+            $productImages = ProductImage::where('product_id', $product->id)->get();
+            foreach ($productImages as $productImage) {
+                $imagePath = str_replace('/storage/', '', $productImage->image);
+                Storage::disk('public')->delete($imagePath);
+                $productImage->delete();
+            }
+
+            // ✅ Upload new ones
+            foreach ($request->file('images') as $image) {
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $storedPath = $image->storeAs('uploads/products', $filename, 'public');
+                $path = Storage::url($storedPath);
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $path,
+                ]);
+            }
         }
-    }
 
-    return response()->json(['message' => 'Product updated successfully']);
-}
+        return response()->json(['message' => 'Product updated successfully']);
+    }
 
 
     public function destroy($id)
-{
-    $product = Product::findOrFail($id);
+    {
+        $product = Product::findOrFail($id);
 
-    // Delete associated images from storage and DB
-    foreach ($product->images as $image) {
-        $storagePath = str_replace('/storage/', '', $image->image); // Convert public URL to storage path
-        Storage::disk('public')->delete($storagePath); // Correct relative path
-        $image->delete();
+        // Delete associated images from storage and DB
+        foreach ($product->images as $image) {
+            $storagePath = str_replace('/storage/', '', $image->image); // Convert public URL to storage path
+            Storage::disk('public')->delete($storagePath); // Correct relative path
+            $image->delete();
+        }
+
+        $product->delete();
+
+        return response()->json(['message' => 'Product deleted successfully']);
     }
-
-    $product->delete();
-
-    return response()->json(['message' => 'Product deleted successfully']);
-}
 }
