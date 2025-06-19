@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 
 class ProductController extends Controller
 {
@@ -105,7 +106,7 @@ class ProductController extends Controller
         if ($request->product_type === 'single') {
             ProductVariant::create([
                 'product_id' => $product->id,
-                'sku' => $product->item_code,
+                'sku' => $request->sku,
                 'price' => $request->price,
                 'stock_quantity' => $request->quantity,
                 'tax' => $request->tax,
@@ -146,9 +147,9 @@ class ProductController extends Controller
 
             'sku' => 'required_if:product_type,single|string|max:255',
             'price' => 'required_if:product_type,single|numeric|min:0',
-            'stock_quantity' => 'required_if:product_type,single|integer|min:0',
+            'quantity' => 'required_if:product_type,single|integer|min:0',
             'tax' => 'nullable|numeric|min:0',
-            'tax_type' => 'nullable|in:inclusive,exclusive',
+            'tax_type' => 'nullable|in:fixed,percentage',
             'discount' => 'nullable|numeric|min:0',
             'discount_type' => 'nullable|in:percentage,fixed',
 
@@ -182,33 +183,33 @@ class ProductController extends Controller
             }
         }
 
-          // ✅ Handle Product Variant if single product
-    if ($request->product_type === 'single') {
-        // Update if exists, otherwise create new
-        $variant = $product->variants()->first();
+        // ✅ Handle Product Variant if single product
+        if ($request->product_type === 'single') {
+            // Update if exists, otherwise create new
+            $variant = ProductVariant::where('product_id', $product->id)->first();
 
-        if ($variant) {
-            $variant->update([
-                'sku' => $request->sku,
-                'price' => $request->price,
-                'stock_quantity' => $request->stock_quantity,
-                'tax' => $request->tax,
-                'tax_type' => $request->tax_type,
-                'discount' => $request->discount,
-                'discount_type' => $request->discount_type,
-            ]);
-        } else {
-            $product->variants()->create([
-                'sku' => $request->sku,
-                'price' => $request->price,
-                'stock_quantity' => $request->stock_quantity,
-                'tax' => $request->tax,
-                'tax_type' => $request->tax_type,
-                'discount' => $request->discount,
-                'discount_type' => $request->discount_type,
-            ]);
+            if ($variant) {
+                $variant->update([
+                    'sku'            => $request->sku,
+                    'price'          => $request->price,
+                    'stock_quantity' => $request->quantity,
+                    'tax'            => $request->tax,
+                    'tax_type'       => $request->tax_type,
+                    'discount'       => $request->discount,
+                    'discount_type'  => $request->discount_type,
+                ]);
+            } else {
+                ProductVariant::create([
+                    'sku' => $request->sku,
+                    'price' => $request->price,
+                    'stock_quantity' => $request->stock_quantity,
+                    'tax' => $request->tax,
+                    'tax_type' => $request->tax_type,
+                    'discount' => $request->discount,
+                    'discount_type' => $request->discount_type,
+                ]);
+            }
         }
-    }
 
         return response()->json(['message' => 'Product updated successfully']);
     }

@@ -33,6 +33,12 @@
                                     </div>
 
                                     <div class="form-group mb-3">
+                                        <label for="sku">SKU</label>
+                                        <input type="text" class="form-control" name="sku" id="sku">
+                                        <div class="text-danger" id="error-sku"></div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
                                         <label for="store_id">Store</label>
                                         <select class="form-select" name="store_id" id="store_id">
                                             <option value="" disabled selected>Select Store</option>
