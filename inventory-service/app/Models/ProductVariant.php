@@ -19,13 +19,9 @@ class ProductVariant extends Model
         'discount',
         'discount_type',
     ];
-
-    public function singleproduct()
+   public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-    public function multipleproducts(){
-        return $this->belongsToMany(Product::class);
     }
 
     public function variantAttributes()

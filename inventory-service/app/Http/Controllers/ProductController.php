@@ -25,7 +25,8 @@ class ProductController extends Controller
             'brand:id,name',
             'vendor:id,name',
             'images:id,product_id,image',
-            
+            'singlevariant:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
+
         ])->get();
 
         return response()->json($products);
@@ -39,7 +40,8 @@ class ProductController extends Controller
             'category:id,name',
             'brand:id,name',
             'vendor:id,name',
-            'images:id,product_id,image'
+            'images:id,product_id,image',
+            'singlevariant:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
         ])->findOrFail($id);
 
         return response()->json($product);
@@ -196,7 +198,7 @@ class ProductController extends Controller
                     'stock_quantity' => $request->quantity,
                     'tax'            => $request->tax,
                     'tax_type'       => $request->tax_type,
-                    'discount'       => $request->discount,
+                    'discount'       => $request->discount_value,
                     'discount_type'  => $request->discount_type,
                 ]);
             } else {
