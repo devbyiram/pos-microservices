@@ -175,12 +175,67 @@ Route::get('/products/{id}', function ($id) {
 });
 
 Route::post('/products', function (Request $request) {
-    $response = Http::internal()->post('http://127.0.0.1:8004/api/products', $request->all());
+    $multipart = [];
+
+    foreach ($request->except('images') as $key => $value) {
+        $multipart[] = [
+            'name' => $key,
+            'contents' => $value
+        ];
+    }
+
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $index => $file) {
+            $multipart[] = [
+                'name'     => "images[$index]",
+                'contents' => fopen($file->getPathname(), 'r'),
+                'filename' => $file->getClientOriginalName(),
+                'headers'  => [
+                    'Content-Type' => $file->getMimeType()
+                ]
+            ];
+        }
+    }
+
+    $response = Http::internal()->withHeaders([
+        'Accept' => 'application/json'
+    ])->asMultipart()->post('http://127.0.0.1:8004/api/products', $multipart);
+
     return response()->json($response->json(), $response->status());
 });
 
-Route::put('/products/{id}', function (Request $request, $id) {
-    $response = Http::internal()->put("http://127.0.0.1:8004/api/products/{$id}", $request->all());
+Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id) {
+    $multipart = [];
+
+    // Add regular fields
+    foreach ($request->except('images') as $key => $value) {
+        $multipart[] = [
+            'name' => $key,
+            'contents' => $value,
+        ];
+    }
+
+    // Add uploaded files
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            $multipart[] = [
+                'name' => 'images[]',
+                'contents' => fopen($file->getPathname(), 'r'),
+                'filename' => $file->getClientOriginalName(),
+            ];
+        }
+    }
+
+    // Add method override for PUT
+    $multipart[] = [
+        'name' => '_method',
+        'contents' => 'PUT',
+    ];
+
+    $response = Http::internal()  // ✅ Your internal request handling
+        ->asMultipart()
+        ->post("http://127.0.0.1:8004/api/products/{$id}", $multipart);
+
     return response()->json($response->json(), $response->status());
 });
 

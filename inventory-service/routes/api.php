@@ -12,6 +12,8 @@ Route::middleware('verify.internal.secret')->group(function () {
     Route::apiResource('brands', BrandController::class);
     Route::apiResource('vendors', VendorController::class);
     Route::apiResource('products', ProductController::class);
+    
+// Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::apiResource('product-variants', ProductVariantController::class);
     Route::apiResource('variant-attributes', VariantAttributeController::class);
 

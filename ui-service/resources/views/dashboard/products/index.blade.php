@@ -58,6 +58,7 @@
 @section('js')
     @parent
     <script>
+         const baseImageUrl = "{{ $base_image_url }}";
         document.addEventListener('DOMContentLoaded', function() {
             const tbody = document.getElementById('products-table-body');
             const successMessage = document.getElementById('success-message');
@@ -99,7 +100,13 @@
                             const row = document.createElement('tr');
                             row.innerHTML = `
                         <td>${product.id}</td>
-                        <td>${product.name}</td>
+                <td class="d-flex align-items-center gap-2">
+     <img src="${baseImageUrl}${product.images?.[0]?.image || '/images/default.png'}"
+                                 alt="${product.name}"
+                                 width="30" height="30"
+                                 style="object-fit: cover; border-radius: 4px;">
+    <span>${product.name}</span>
+</td>
                         <td>${product.store?.name || 'N/A'}</td>
                         <td>${product.category?.name || 'N/A'}</td>
                         <td>${product.brand?.name || 'N/A'}</td>

@@ -141,21 +141,18 @@
                 'status'
             ];
 
-            formData.append('name', document.getElementById('name').value);
-            formData.append('item_code', document.getElementById('item_code').value);
-            formData.append('store_id', document.getElementById('store_id').value);
-            formData.append('user_id', document.getElementById('user_id').value);
-            formData.append('category_id', document.getElementById('category_id').value);
-            formData.append('brand_id', document.getElementById('brand_id').value);
-            formData.append('vendor_id', document.getElementById('vendor_id').value);
-            formData.append('status', document.getElementById('status').value);
+            fields.forEach(id => {
+                formData.append(id, document.getElementById(id).value);
+            });
 
-            // Append files
-            const files = document.getElementById('images').files;
-            for (let i = 0; i < files.length; i++) {
-                formData.append('images[]', files[i]);
-          }
+            const images = document.getElementById('images').files;
 
+            for (let i = 0; i < images.length; i++) {
+                if (images[i]) {
+                    formData.append(`images[]`, images[i]);
+                }
+            }
+            
             try {
                 const response = await fetch('http://127.0.0.1:8000/api/products', {
                     method: 'POST',

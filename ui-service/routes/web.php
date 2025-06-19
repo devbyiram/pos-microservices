@@ -95,7 +95,9 @@ Route::get('/vendors/edit/{id}', function ($id) {
 
 
 Route::get('/products', function () {
-    return view('dashboard.products.index');
+    return view('dashboard.products.index', [
+        'base_image_url' => env('INVENTORY_IMAGE_URL') // ✅ here
+    ]);
 })->middleware('require.jwt')->name('products.index');
 
 Route::get('/products/create', function () {
