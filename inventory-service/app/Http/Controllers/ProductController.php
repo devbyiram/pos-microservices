@@ -73,6 +73,7 @@ class ProductController extends Controller
             'images' => 'required|array',
             'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
+            'sku' => 'required_if:product_type,single|string|max:255',
             'price' => 'required_if:product_type,single|numeric|min:0',
             'quantity' => 'required_if:product_type,single|integer|min:0',
             'tax' => 'nullable|numeric|min:0',
@@ -142,6 +143,15 @@ class ProductController extends Controller
             'status' => 'required|in:0,1',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+            'sku' => 'required_if:product_type,single|string|max:255',
+            'price' => 'required_if:product_type,single|numeric|min:0',
+            'stock_quantity' => 'required_if:product_type,single|integer|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'tax_type' => 'nullable|in:inclusive,exclusive',
+            'discount' => 'nullable|numeric|min:0',
+            'discount_type' => 'nullable|in:percentage,fixed',
+
         ]);
 
         if ($validator->fails()) {
@@ -171,6 +181,34 @@ class ProductController extends Controller
                 ]);
             }
         }
+
+          // ✅ Handle Product Variant if single product
+    if ($request->product_type === 'single') {
+        // Update if exists, otherwise create new
+        $variant = $product->variants()->first();
+
+        if ($variant) {
+            $variant->update([
+                'sku' => $request->sku,
+                'price' => $request->price,
+                'stock_quantity' => $request->stock_quantity,
+                'tax' => $request->tax,
+                'tax_type' => $request->tax_type,
+                'discount' => $request->discount,
+                'discount_type' => $request->discount_type,
+            ]);
+        } else {
+            $product->variants()->create([
+                'sku' => $request->sku,
+                'price' => $request->price,
+                'stock_quantity' => $request->stock_quantity,
+                'tax' => $request->tax,
+                'tax_type' => $request->tax_type,
+                'discount' => $request->discount,
+                'discount_type' => $request->discount_type,
+            ]);
+        }
+    }
 
         return response()->json(['message' => 'Product updated successfully']);
     }
