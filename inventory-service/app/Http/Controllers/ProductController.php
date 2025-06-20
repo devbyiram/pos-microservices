@@ -24,6 +24,7 @@ class ProductController extends Controller
             'vendor:id,name',
             'images:id,product_id,image',
             'singlevariant:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
+            'multiplevariants:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
 
         ])->get();
 
@@ -44,85 +45,185 @@ class ProductController extends Controller
 
         return response()->json($product);
     }
+//--------------------------------------------------
+public function store(Request $request)
+{
+    Log::info($request->all());
 
-    public function store(Request $request)
-    {
-        Log::info($request->all());
-        Log::info('Request files:', $request->files->all());
-        $validator = Validator::make($request->all(), [
-            'store_id' => 'required|integer|exists:stores,id',
-            'user_id' => 'required|integer|exists:users,id',
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('products')->where(function ($query) use ($request) {
-                    return $query->where('store_id', $request->store_id);
-                }),
-            ],
-            'item_code' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('products')->where(function ($query) use ($request) {
-                    return $query->where('store_id', $request->store_id);
-                }),
-            ],
-            'category_id' => 'nullable|integer|exists:categories,id',
-            'brand_id' => 'nullable|integer|exists:brands,id',
-            'vendor_id' => 'nullable|integer|exists:vendors,id',
-            'status' => 'required|in:0,1',
-            'images' => 'required|array',
-            'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    $validator = Validator::make($request->all(), [
+        'store_id' => 'required|integer|exists:stores,id',
+        'user_id' => 'required|integer|exists:users,id',
+        'name' => [
+            'required', 'string', 'max:255',
+            Rule::unique('products')->where(fn($q) => $q->where('store_id', $request->store_id)),
+        ],
+        'item_code' => [
+            'required', 'string', 'max:255',
+            Rule::unique('products')->where(fn($q) => $q->where('store_id', $request->store_id)),
+        ],
+        'category_id' => 'nullable|integer|exists:categories,id',
+        'brand_id' => 'nullable|integer|exists:brands,id',
+        'vendor_id' => 'nullable|integer|exists:vendors,id',
+        'status' => 'required|in:0,1',
+        'images' => 'required|array',
+        'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
-            'sku' => 'required_if:product_type,single|string|max:255',
-            'price' => 'required_if:product_type,single|numeric|min:0',
-            'quantity' => 'required_if:product_type,single|integer|min:0',
-            'tax' => 'nullable|numeric|min:0',
-            'tax_type' => 'nullable|in:percentage,fixed',
-            'discount_type' => 'nullable|in:percentage,fixed',
-            'discount_value' => 'nullable|numeric|min:0',
-        ]);
+        'product_type' => 'required|in:single,variable',
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
-        }
+        // Single Variant
+        'sku' => 'required_if:product_type,single|string|max:255',
+        'price' => 'required_if:product_type,single|numeric|min:0',
+        'quantity' => 'required_if:product_type,single|integer|min:0',
+        'tax' => 'nullable|numeric|min:0',
+        'tax_type' => 'nullable|in:percentage,fixed',
+        'discount_type' => 'nullable|in:percentage,fixed',
+        'discount_value' => 'nullable|numeric|min:0',
 
-        $product = Product::create($validator->validated());
+        // Multiple Variants
+        'variants' => 'required_if:product_type,variable|array',
+        'variants.*.sku' => 'required|string|max:255',
+        'variants.*.price' => 'required|numeric|min:0',
+        'variants.*.stock_quantity' => 'required|integer|min:0',
+        'variants.*.tax' => 'nullable|numeric|min:0',
+        'variants.*.tax_type' => 'nullable|in:percentage,fixed',
+        'variants.*.discount' => 'nullable|numeric|min:0',
+        'variants.*.discount_type' => 'nullable|in:percentage,fixed',
+    ]);
 
-        $images = $request->file('images');
-        if ($request->hasFile('images')) {
-            foreach ($images as $image) {
-                $filename = time() . '_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
-                $storedPath = $image->storeAs('uploads/products', $filename, 'public');
-                $path = Storage::url($storedPath);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
 
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image'      => $path,
-                ]);
-            }
-        }
+    $product = Product::create($validator->validated());
 
-        if ($request->product_type === 'single') {
-            ProductVariant::create([
+    // Save Images
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $filename = time() . '_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $storedPath = $image->storeAs('uploads/products', $filename, 'public');
+            $path = Storage::url($storedPath);
+
+            ProductImage::create([
                 'product_id' => $product->id,
-                'sku' => $request->sku,
-                'price' => $request->price,
-                'stock_quantity' => $request->quantity,
-                'tax' => $request->tax,
-                'tax_type' => $request->tax_type,
-                'discount' => $request->discount_value,
-                'discount_type' => $request->discount_type,
+                'image' => $path,
             ]);
         }
-        return response()->json(['message' => 'Product created successfully'], 201);
     }
+
+    // Handle Variants
+    if ($request->product_type === 'single') {
+        ProductVariant::create([
+            'product_id' => $product->id,
+            'sku' => $request->sku,
+            'price' => $request->price,
+            'stock_quantity' => $request->quantity,
+            'tax' => $request->tax,
+            'tax_type' => $request->tax_type,
+            'discount' => $request->discount_value,
+            'discount_type' => $request->discount_type,
+        ]);
+    } else {
+        foreach ($request->variants as $variant) {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'sku' => $variant['sku'],
+                'price' => $variant['price'],
+                'stock_quantity' => $variant['stock_quantity'],
+                'tax' => $variant['tax'] ?? null,
+                'tax_type' => $variant['tax_type'] ?? null,
+                'discount' => $variant['discount'] ?? null,
+                'discount_type' => $variant['discount_type'] ?? null,
+            ]);
+        }
+    }
+
+    return response()->json(['message' => 'Product created successfully'], 201);
+}
+
+
+
+
+
+    //----------------------------------------------
+
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'store_id' => 'required|integer|exists:stores,id',
+    //         'user_id' => 'required|integer|exists:users,id',
+    //         'name' => [
+    //             'required',
+    //             'string',
+    //             'max:255',
+    //             Rule::unique('products')->where(function ($query) use ($request) {
+    //                 return $query->where('store_id', $request->store_id);
+    //             }),
+    //         ],
+    //         'item_code' => [
+    //             'required',
+    //             'string',
+    //             'max:255',
+    //             Rule::unique('products')->where(function ($query) use ($request) {
+    //                 return $query->where('store_id', $request->store_id);
+    //             }),
+    //         ],
+    //         'category_id' => 'nullable|integer|exists:categories,id',
+    //         'brand_id' => 'nullable|integer|exists:brands,id',
+    //         'vendor_id' => 'nullable|integer|exists:vendors,id',
+    //         'status' => 'required|in:0,1',
+    //         'images' => 'required|array',
+    //         'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+    //         'sku' => 'required_if:product_type,single|string|max:255',
+    //         'price' => 'required_if:product_type,single|numeric|min:0',
+    //         'quantity' => 'required_if:product_type,single|integer|min:0',
+    //         'tax' => 'nullable|numeric|min:0',
+    //         'tax_type' => 'nullable|in:percentage,fixed',
+    //         'discount_type' => 'nullable|in:percentage,fixed',
+    //         'discount_value' => 'nullable|numeric|min:0',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+    //     }
+
+    //     $product = Product::create($validator->validated());
+
+    //     $images = $request->file('images');
+    //     if ($request->hasFile('images')) {
+    //         foreach ($images as $image) {
+    //             $filename = time() . '_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+    //             $storedPath = $image->storeAs('uploads/products', $filename, 'public');
+    //             $path = Storage::url($storedPath);
+
+    //             ProductImage::create([
+    //                 'product_id' => $product->id,
+    //                 'image'      => $path,
+    //             ]);
+    //         }
+    //     }
+
+    //     if ($request->product_type === 'single') {
+    //         ProductVariant::create([
+    //             'product_id' => $product->id,
+    //             'sku' => $request->sku,
+    //             'price' => $request->price,
+    //             'stock_quantity' => $request->quantity,
+    //             'tax' => $request->tax,
+    //             'tax_type' => $request->tax_type,
+    //             'discount' => $request->discount_value,
+    //             'discount_type' => $request->discount_type,
+    //         ]);
+    //     }
+    //     return response()->json(['message' => 'Product created successfully'], 201);
+    // }
 
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-        Log::info('Files:', $request->allFiles());
 
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|integer|exists:stores,id',

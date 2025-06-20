@@ -22,7 +22,7 @@
 
                                     <div class="row g-3">
                                         <div class="col-lg-4">
-                                            <label for="name" >Product Name</label>
+                                            <label for="name">Product Name</label>
                                             <input type="text" class="form-control" name="name" id="name">
                                             <div class="text-danger" id="error-name"></div>
                                         </div>
@@ -91,14 +91,17 @@
 
                                     <!-- Upload drop‑zone -->
                                     <div id="image-preview-container" class="d-flex align-items-start flex-wrap gap-3">
-                                        <label for="images" class="d-flex flex-column justify-content-center align-items-center text-muted rounded border" style="width: 100px; height: 100px; cursor:pointer; border:2px dashed #d9d9d9;">
+                                        <label for="images"
+                                            class="d-flex flex-column justify-content-center align-items-center text-muted rounded border"
+                                            style="width: 100px; height: 100px; cursor:pointer; border:2px dashed #d9d9d9;">
                                             <span style="font-size: 2rem; line-height: 1;">&#43;</span>
                                             <small>Add&nbsp;Images</small>
                                         </label>
                                     </div>
 
                                     <!-- Hidden native file input -->
-                                    <input type="file" class="d-none" name="images[]" id="images" multiple accept="image/*">
+                                    <input type="file" class="d-none" name="images[]" id="images" multiple
+                                        accept="image/*">
                                     <div class="text-danger" id="error-images"></div>
                                 </div>
 
@@ -107,14 +110,19 @@
                                     <h6 class="fw-semibold mb-3">Pricing & Stocks</h6>
 
                                     <div class="mb-3">
-                                        <label class="form-label me-3">Product Type <span class="text-danger">*</span></label>
+                                        <label class="form-label me-3">Product Type <span
+                                                class="text-danger">*</span></label>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="product_type" id="product_type_single" value="single" checked>
-                                            <label class="form-check-label" for="product_type_single">Single Product</label>
+                                            <input class="form-check-input" type="radio" name="product_type"
+                                                id="product_type_single" value="single" checked>
+                                            <label class="form-check-label" for="product_type_single">Single
+                                                Product</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="product_type" id="product_type_variable" value="variable">
-                                            <label class="form-check-label" for="product_type_variable">Variable Product</label>
+                                            <input class="form-check-input" type="radio" name="product_type"
+                                                id="product_type_variable" value="variable">
+                                            <label class="form-check-label" for="product_type_variable">Variable
+                                                Product</label>
                                         </div>
                                         <div class="text-danger" id="error-product_type"></div>
                                     </div>
@@ -124,22 +132,26 @@
                                         <div class="row g-3">
                                             <div class="col-lg-4">
                                                 <label for="sku">SKU</label>
-                                                <input type="text" class="form-control" name="sku" id="sku">
+                                                <input type="text" class="form-control" name="sku"
+                                                    id="sku">
                                                 <div class="text-danger" id="error-sku"></div>
                                             </div>
                                             <div class="col-lg-4">
                                                 <label for="quantity">Quantity <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control" name="quantity" id="quantity" min="0">
+                                                <input type="number" class="form-control" name="quantity"
+                                                    id="quantity" min="0">
                                                 <div class="text-danger" id="error-quantity"></div>
                                             </div>
                                             <div class="col-lg-4">
                                                 <label for="price">Price <span class="text-danger">*</span></label>
-                                                <input type="number" step="0.01" class="form-control" name="price" id="price" min="0">
+                                                <input type="number" step="0.01" class="form-control" name="price"
+                                                    id="price" min="0">
                                                 <div class="text-danger" id="error-price"></div>
                                             </div>
                                             <div class="col-lg-4">
-                                                <label for="tax" >Tax (%)</label>
-                                                <input type="number" step="0.01" class="form-control" name="tax" id="tax" min="0">
+                                                <label for="tax">Tax (%)</label>
+                                                <input type="number" step="0.01" class="form-control" name="tax"
+                                                    id="tax" min="0">
                                                 <div class="text-danger" id="error-tax"></div>
                                             </div>
                                             <div class="col-lg-4">
@@ -152,7 +164,7 @@
                                                 <div class="text-danger" id="error-tax_type"></div>
                                             </div>
                                             <div class="col-lg-4">
-                                                <label for="discount_type" >Discount Type</label>
+                                                <label for="discount_type">Discount Type</label>
                                                 <select class="form-select" name="discount_type" id="discount_type">
                                                     <option value="" disabled selected>Select</option>
                                                     <option value="percentage">Percentage</option>
@@ -161,14 +173,38 @@
                                                 <div class="text-danger" id="error-discount_type"></div>
                                             </div>
                                             <div class="col-lg-4">
-                                                <label for="discount_value" >Discount Value</label>
-                                                <input type="number" step="0.01" class="form-control" name="discount_value" id="discount_value" min="0">
+                                                <label for="discount_value">Discount Value</label>
+                                                <input type="number" step="0.01" class="form-control"
+                                                    name="discount_value" id="discount_value" min="0">
                                                 <div class="text-danger" id="error-discount_value"></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
+
+                                <!-- ================= Variable Variant Block ================= -->
+
+                                <div id="variant-fields" class="mb-4" style="display: none;">
+                                    <h6 class="fw-semibold mb-3">Variants</h6>
+
+                                    <div class="row g-3 align-items-end mb-2">
+                                        <div class="col-lg-4">
+                                            <label for="variant-attribute-selector">Variant Attribute</label>
+                                            <select class="form-select" id="variant-attribute-selector">
+                                                <option value="" disabled selected>Select Attribute</option>
+                                                <!-- options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <button type="button" class="btn btn-success" id="add-variant-block">+ Add
+                                                Variant</button>
+                                        </div>
+                                    </div>
+
+                                    <div id="variant-blocks" class="d-flex flex-column gap-3"></div>
+                                </div>
+                                <!-- ================= Variable Variant Block End ================= -->
                                 <button type="submit" class="btn btn-primary">Create Product</button>
                                 <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
@@ -185,7 +221,9 @@
     <script>
         // ================= Populate dropdowns =================
         async function populateDropdown(url, elementId) {
-            const res = await fetch(url, { credentials: 'include' });
+            const res = await fetch(url, {
+                credentials: 'include'
+            });
             const data = await res.json();
             const select = document.getElementById(elementId);
             data.forEach(item => {
@@ -230,7 +268,9 @@
 
         function renderPreviews() {
             // Remove existing thumbs (keep the upload box -> :first-child)
-            Array.from(previewContainer.children).forEach((child, idx) => { if (idx) child.remove(); });
+            Array.from(previewContainer.children).forEach((child, idx) => {
+                if (idx) child.remove();
+            });
 
             Array.from(imageInput.files).forEach((file, index) => {
                 const reader = new FileReader();
@@ -247,7 +287,8 @@
 
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
+                    btn.className =
+                        'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
                     btn.style.padding = '0 6px';
                     btn.innerHTML = '&times;';
                     btn.addEventListener('click', () => removeImage(index));
@@ -306,6 +347,134 @@
             } catch (err) {
                 console.error('Create failed:', err);
                 alert('Network or server error.');
+            }
+        });
+
+
+
+        let variantAttributeOptions = {};
+        let variantAttributes = [];
+
+        // ================= Show/hide block for variable =================
+        const variableSection = document.getElementById('variant-fields');
+        const variantAttributeSelector = document.getElementById('variant-attribute-selector');
+        const variantBlocksContainer = document.getElementById('variant-blocks');
+
+        document.querySelectorAll('input[name="product_type"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const isVariable = document.getElementById('product_type_variable').checked;
+                variableSection.style.display = isVariable ? 'block' : 'none';
+                document.getElementById('single-product-fields').style.display = !isVariable ? 'block' :
+                    'none';
+            });
+        });
+
+        // ================= Load Variant Attributes from API =================
+        async function loadVariantAttributes() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/variant-attributes');
+                const data = await res.json();
+
+                variantAttributes = {};
+
+                data.forEach(attr => {
+                    if (!variantAttributes[attr.name]) {
+                        variantAttributes[attr.name] = [];
+                    }
+                    if (!variantAttributes[attr.name].includes(attr.value)) {
+                        variantAttributes[attr.name].push(attr.value);
+                    }
+                });
+
+                const variantAttributeSelector = document.getElementById('variant-attribute-selector');
+                variantAttributeSelector.innerHTML = '<option value="" disabled selected>Select Attribute</option>';
+
+                Object.keys(variantAttributes).forEach(attrName => {
+                    const option = document.createElement('option');
+                    option.value = attrName;
+                    option.text = attrName;
+                    variantAttributeSelector.appendChild(option);
+                });
+
+            } catch (err) {
+                console.error("Failed to load variant attributes:", err);
+            }
+        }
+
+        loadVariantAttributes();
+
+        // ================= Add Variant Block =================
+        document.getElementById('add-variant-block').addEventListener('click', () => {
+            const variantAttributeSelector = document.getElementById('variant-attribute-selector');
+            const attribute = variantAttributeSelector.value;
+            if (!attribute || !variantAttributes[attribute]) {
+                alert('Please select a variant attribute first.');
+                return;
+            }
+
+            const values = variantAttributes[attribute];
+            const index = document.getElementById('variant-blocks').children.length;
+
+            const block = document.createElement('div');
+            block.className = 'border rounded p-3 position-relative';
+            block.innerHTML = `
+        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-variant">&times;</button>
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label>SKU</label>
+                <input type="text" name="variants[${index}][sku]" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label>Price</label>
+                <input type="number" name="variants[${index}][price]" class="form-control" step="0.01" min="0">
+            </div>
+            <div class="col-md-2">
+                <label>Stock Qty</label>
+                <input type="number" name="variants[${index}][stock_quantity]" class="form-control" min="0">
+            </div>
+            <div class="col-md-2">
+                <label>Tax</label>
+                <input type="number" name="variants[${index}][tax]" class="form-control" step="0.01" min="0">
+            </div>
+            <div class="col-md-3">
+                <label>Tax Type</label>
+                <select name="variants[${index}][tax_type]" class="form-select">
+                    <option value="" selected disabled>Select</option>
+                    <option value="fixed">Fixed</option>
+                    <option value="percentage">Percentage</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>Discount</label>
+                <input type="number" name="variants[${index}][discount]" class="form-control" step="0.01" min="0">
+            </div>
+            <div class="col-md-3">
+                <label>Discount Type</label>
+                <select name="variants[${index}][discount_type]" class="form-select">
+                    <option value="" selected disabled>Select</option>
+                    <option value="fixed">Fixed</option>
+                    <option value="percentage">Percentage</option>
+                </select>
+            </div>
+           <div class="col-md-3">
+    <label>${attribute}</label>
+    <select name="variants[${index}][${attribute.toLowerCase()}]" class="form-select">
+        <option value="" disabled selected>Select ${attribute}</option>
+        ${values.map(val => `<option value="${val}">${val}</option>`).join('')}
+    </select>
+</div>
+        </div>
+    `;
+
+            document.getElementById('variant-blocks').appendChild(block);
+        });
+
+
+        // ================= Remove Variant Block =================
+        variantBlocksContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-variant')) {
+                e.target.closest('.border').remove();
             }
         });
     </script>

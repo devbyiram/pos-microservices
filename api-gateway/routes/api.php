@@ -174,16 +174,31 @@ Route::get('/products/{id}', function ($id) {
     return response()->json($response->json(), $response->status());
 });
 
+
 Route::post('/products', function (Request $request) {
     $multipart = [];
 
-    foreach ($request->except('images') as $key => $value) {
+    // Forward all simple fields except files and variants
+    foreach ($request->except(['images', 'variants']) as $key => $value) {
         $multipart[] = [
-            'name' => $key,
+            'name'     => $key,
             'contents' => $value
         ];
     }
 
+    // Handle variants properly
+    if ($request->has('variants')) {
+        foreach ($request->input('variants') as $i => $variant) {
+            foreach ($variant as $vKey => $vValue) {
+                $multipart[] = [
+                    'name'     => "variants[$i][$vKey]",
+                    'contents' => $vValue
+                ];
+            }
+        }
+    }
+
+    // Handle image file uploads
     if ($request->hasFile('images')) {
         foreach ($request->file('images') as $index => $file) {
             $multipart[] = [
@@ -197,9 +212,11 @@ Route::post('/products', function (Request $request) {
         }
     }
 
-    $response = Http::internal()->withHeaders([
-        'Accept' => 'application/json'
-    ])->asMultipart()->post('http://127.0.0.1:8004/api/products', $multipart);
+    // Send to Product Microservice
+    $response = Http::internal()
+        ->withHeaders(['Accept' => 'application/json'])
+        ->asMultipart()
+        ->post('http://127.0.0.1:8004/api/products', $multipart);
 
     return response()->json($response->json(), $response->status());
 });

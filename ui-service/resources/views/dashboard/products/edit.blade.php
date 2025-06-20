@@ -186,89 +186,89 @@
     @parent
     <script>
         const productId = document.getElementById('product_id').value;
-        const previewContainer = document.getElementById('image-preview-container');
-        const imageInput = document.getElementById('images');
-        let dt = new DataTransfer(); // for new files
-        let oldImages = []; // { id, image }
+        // const previewContainer = document.getElementById('image-preview-container');
+        // const imageInput = document.getElementById('images');
+        // let dt = new DataTransfer(); // for new files
+        // let oldImages = []; // { id, image }
 
-        imageInput.addEventListener('change', handleFiles);
+        // imageInput.addEventListener('change', handleFiles);
 
-        function handleFiles(e) {
-            Array.from(e.target.files).forEach(file => dt.items.add(file));
-            imageInput.files = dt.files;
-            renderPreviews();
-        }
+        // function handleFiles(e) {
+        //     Array.from(e.target.files).forEach(file => dt.items.add(file));
+        //     imageInput.files = dt.files;
+        //     renderPreviews();
+        // }
 
-        function renderPreviews() {
-            previewContainer.innerHTML = '';
+        // function renderPreviews() {
+        //     previewContainer.innerHTML = '';
 
-            // 🖼️ Render existing images
-            oldImages.forEach((image, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'position-relative d-inline-block me-2 mb-2';
-                wrapper.style.width = '100px';
+        //     // 🖼️ Render existing images
+        //     oldImages.forEach((image, index) => {
+        //         const wrapper = document.createElement('div');
+        //         wrapper.className = 'position-relative d-inline-block me-2 mb-2';
+        //         wrapper.style.width = '100px';
 
-                const img = document.createElement('img');
-                img.src = image.image;
-                img.className = 'img-fluid rounded';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
+        //         const img = document.createElement('img');
+        //         img.src = image.image;
+        //         img.className = 'img-fluid rounded';
+        //         img.style.height = '100px';
+        //         img.style.objectFit = 'cover';
 
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className =
-                    'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
-                btn.style.padding = '0 6px';
-                btn.innerHTML = '&times;';
-                btn.addEventListener('click', () => {
-                    oldImages.splice(index, 1);
-                    renderPreviews();
-                });
+        //         const btn = document.createElement('button');
+        //         btn.type = 'button';
+        //         btn.className =
+        //             'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
+        //         btn.style.padding = '0 6px';
+        //         btn.innerHTML = '&times;';
+        //         btn.addEventListener('click', () => {
+        //             oldImages.splice(index, 1);
+        //             renderPreviews();
+        //         });
 
-                wrapper.appendChild(img);
-                wrapper.appendChild(btn);
-                previewContainer.appendChild(wrapper);
-            });
+        //         wrapper.appendChild(img);
+        //         wrapper.appendChild(btn);
+        //         previewContainer.appendChild(wrapper);
+        //     });
 
-            // 🖼️ Render newly added images
-            Array.from(imageInput.files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'position-relative d-inline-block me-2 mb-2';
-                    wrapper.style.width = '100px';
+        //     // 🖼️ Render newly added images
+        //     Array.from(imageInput.files).forEach((file, index) => {
+        //         const reader = new FileReader();
+        //         reader.onload = function(event) {
+        //             const wrapper = document.createElement('div');
+        //             wrapper.className = 'position-relative d-inline-block me-2 mb-2';
+        //             wrapper.style.width = '100px';
 
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = 'img-fluid rounded';
-                    img.style.height = '100px';
-                    img.style.objectFit = 'cover';
+        //             const img = document.createElement('img');
+        //             img.src = event.target.result;
+        //             img.className = 'img-fluid rounded';
+        //             img.style.height = '100px';
+        //             img.style.objectFit = 'cover';
 
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className =
-                        'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
-                    btn.style.padding = '0 6px';
-                    btn.innerHTML = '&times;';
-                    btn.addEventListener('click', () => removeImage(index));
+        //             const btn = document.createElement('button');
+        //             btn.type = 'button';
+        //             btn.className =
+        //                 'btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle';
+        //             btn.style.padding = '0 6px';
+        //             btn.innerHTML = '&times;';
+        //             btn.addEventListener('click', () => removeImage(index));
 
-                    wrapper.appendChild(img);
-                    wrapper.appendChild(btn);
-                    previewContainer.appendChild(wrapper);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
+        //             wrapper.appendChild(img);
+        //             wrapper.appendChild(btn);
+        //             previewContainer.appendChild(wrapper);
+        //         };
+        //         reader.readAsDataURL(file);
+        //     });
+        // }
 
-        function removeImage(removeIndex) {
-            const newDt = new DataTransfer();
-            Array.from(imageInput.files).forEach((file, index) => {
-                if (index !== removeIndex) newDt.items.add(file);
-            });
-            dt = newDt;
-            imageInput.files = dt.files;
-            renderPreviews();
-        }
+        // function removeImage(removeIndex) {
+        //     const newDt = new DataTransfer();
+        //     Array.from(imageInput.files).forEach((file, index) => {
+        //         if (index !== removeIndex) newDt.items.add(file);
+        //     });
+        //     dt = newDt;
+        //     imageInput.files = dt.files;
+        //     renderPreviews();
+        // }
 
         async function populateDropdown(url, elementId, selectedId = null) {
             const res = await fetch(url);
