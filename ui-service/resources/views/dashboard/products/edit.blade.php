@@ -76,23 +76,25 @@
                                 </div>
 <div class="mb-4">
     <h6 class="fw-semibold mb-3">Images</h6>
-    <div id="image-upload-container" class="d-flex align-items-start flex-wrap gap-3">
-        <label for="images"
-            class="d-flex flex-column justify-content-center align-items-center text-muted rounded border"
-            style="width: 100px; height: 100px; cursor:pointer; border:2px dashed #d9d9d9;">
-            <span style="font-size: 2rem; line-height: 1;">&#43;</span>
-            <small>Add&nbsp;Images</small>
-        </label>
-    </div>
-    <input type="file" class="d-none" name="images[]" id="images" multiple accept="image/*">
 
-    <!-- ✅ THIS IS THE CORRECT CONTAINER -->
-    <div class="d-flex gap-2 flex-wrap mt-2" id="image-preview-container">
+    <!-- Upload drop-zone -->
+    <label for="images"
+        class="d-flex flex-column justify-content-center align-items-center text-muted rounded border"
+        style="width: 100px; height: 100px; cursor:pointer; border:2px dashed #d9d9d9;">
+        <span style="font-size: 2rem; line-height: 1;">&#43;</span>
+        <small>Add&nbsp;Images</small>
+    </label>
+
+    <!-- Previews will be added here -->
+    <div id="image-preview-container" class="d-flex align-items-start flex-wrap gap-3 mt-3">
         <!-- JS will append thumbnails here -->
     </div>
 
+    <!-- Hidden native file input -->
+    <input type="file" class="d-none" name="images[]" id="images" multiple accept="image/*">
     <div class="text-danger" id="error-images"></div>
 </div>
+
 
 
                                 <!-- ================= Pricing & Stocks ================= -->
@@ -189,7 +191,6 @@
     const previewContainer = document.getElementById('image-preview-container');
     const imageInput = document.getElementById('images');
 
-    let dt = new DataTransfer(); // new files
     let oldImages = []; // { id, image }
     let newImagePreviews = []; // { file, preview }
 
@@ -205,12 +206,13 @@
                     file,
                     preview: event.target.result
                 });
-                dt.items.add(file);
-                imageInput.files = dt.files;
                 renderPreviews();
             };
             reader.readAsDataURL(file);
         });
+
+        // 👇 Clear input so same file can be selected again later
+        imageInput.value = '';
     }
 
     function renderPreviews() {
@@ -262,7 +264,6 @@
             btn.innerHTML = '&times;';
             btn.addEventListener('click', () => {
                 newImagePreviews.splice(index, 1);
-                refreshImageInputFiles();
                 renderPreviews();
             });
 
@@ -270,12 +271,6 @@
             wrapper.appendChild(btn);
             previewContainer.appendChild(wrapper);
         });
-    }
-
-    function refreshImageInputFiles() {
-        dt = new DataTransfer();
-        newImagePreviews.forEach(entry => dt.items.add(entry.file));
-        imageInput.files = dt.files;
     }
 
     async function populateDropdown(url, elementId, selectedId = null) {
@@ -348,6 +343,7 @@
         const formData = new FormData(this);
         formData.append('_method', 'PUT');
 
+        // ✅ Only add from newImagePreviews
         newImagePreviews.forEach(entry => {
             formData.append('images[]', entry.file);
         });
@@ -384,5 +380,6 @@
 
     loadProductDetails();
 </script>
+
 @endsection
 

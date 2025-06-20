@@ -8,6 +8,7 @@ use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -282,38 +283,39 @@ class ProductController extends Controller
         $product->update($validator->validated());
 
 
-  // 🧹 Only do image deletion logic if existing_images or images are in the request
-if ($request->has('existing_images') || $request->hasFile('images')) {
-
-    $existingIds = $request->input('existing_images', []);
-
-    // Delete images not in the keep list
-    $productImages = ProductImage::where('product_id', $product->id)->get();
-    foreach ($productImages as $productImage) {
-        if (!in_array($productImage->id, $existingIds)) {
-            $imagePath = str_replace('/storage/', '', $productImage->image);
-            Storage::disk('public')->delete($imagePath);
-            $productImage->delete();
+        if ($request->has('existing_images')) {
+            $existingIds = $request->input('existing_images'); // array of IDs to keep
+        } else {
+            $existingIds = [];
         }
-    }
 
-    // Upload new images
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $image) {
-            if (!$image instanceof \Illuminate\Http\UploadedFile) continue;
-
-            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $storedPath = $image->storeAs('uploads/products', $filename, 'public');
-            $path = Storage::url($storedPath);
-
-            ProductImage::create([
-                'product_id' => $product->id,
-                'image' => $path,
-            ]);
+        // 🧹 Delete old images not in existing_images[]
+        $productImages = ProductImage::where('product_id', $product->id)->get();
+        foreach ($productImages as $productImage) {
+            if (!in_array($productImage->id, $existingIds)) {
+                $imagePath = str_replace('/storage/', '', $productImage->image);
+                Storage::disk('public')->delete($imagePath);
+                $productImage->delete();
+            }
         }
-    }
-}
 
+        // 📤 Handle new image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                if (!$image instanceof \Illuminate\Http\UploadedFile) {
+                    continue; // 👈 Prevents the "Invalid resource type: array" error
+                }
+
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $storedPath = $image->storeAs('uploads/products', $filename, 'public');
+                $path = Storage::url($storedPath);
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $path,
+                ]);
+            }
+        }
 
 
 
@@ -348,21 +350,34 @@ if ($request->has('existing_images') || $request->hasFile('images')) {
     }
 
 
-    public function destroy($id)
-    {
-        $product = Product::findOrFail($id);
+   public function destroy($id)
+{
+    $product = Product::with('images')->findOrFail($id);
 
-        foreach ($product->images as $image) {
-            $storagePath = str_replace('/storage/', '', $image->image);
-            Storage::disk('public')->delete($storagePath);
+    DB::beginTransaction();
+
+    try {
+        // Delete product images
+        $product->images->each(function ($image) {
+            if ($image->image) {
+                $storagePath = str_replace('/storage/', '', $image->image);
+                Storage::disk('public')->delete($storagePath);
+            }
             $image->delete();
-        }
+        });
 
+        // Delete product variants
         ProductVariant::where('product_id', $product->id)->delete();
 
-
+        // Delete the product
         $product->delete();
 
+        DB::commit();
+
         return response()->json(['message' => 'Product deleted successfully']);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['message' => 'Failed to delete product', 'error' => $e->getMessage()], 500);
     }
+}
 }

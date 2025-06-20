@@ -340,12 +340,17 @@
     Object.entries(result.errors).forEach(([field, messages]) => {
         let input;
 
-        // Check if it's a nested field like variants.0.sku
+        // Check if it's a nested variant field (e.g. variants.0.sku)
         const variantMatch = field.match(/^variants\.(\d+)\.(\w+)$/);
         if (variantMatch) {
             const [_, index, name] = variantMatch;
             input = document.querySelector(`[name="variants[${index}][${name}]"]`);
-        } else {
+        } 
+        // ✅ Handle image validation errors like images or images.0
+        else if (field.startsWith('images')) {
+            input = document.getElementById('images'); // file input
+        } 
+        else {
             input = document.querySelector(`[name="${field}"]`);
         }
 
@@ -353,7 +358,14 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'text-danger validation-error mt-1';
             errorDiv.innerText = messages[0];
-            input.insertAdjacentElement('afterend', errorDiv);
+
+            // If it's the image input, insert error after preview container
+            if (field.startsWith('images')) {
+                const previewContainer = document.getElementById('image-preview-container');
+                previewContainer.insertAdjacentElement('afterend', errorDiv);
+            } else {
+                input.insertAdjacentElement('afterend', errorDiv);
+            }
         }
     });
 } else {
