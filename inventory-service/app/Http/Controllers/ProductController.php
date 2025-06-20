@@ -9,10 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 
 class ProductController extends Controller
 {
@@ -164,7 +162,7 @@ class ProductController extends Controller
 
         $product->update($validator->validated());
 
-        // ✅ Remove old images if new ones are provided
+        
         if ($request->hasFile('images')) {
             $productImages = ProductImage::where('product_id', $product->id)->get();
             foreach ($productImages as $productImage) {
@@ -173,7 +171,7 @@ class ProductController extends Controller
                 $productImage->delete();
             }
 
-            // ✅ Upload new ones
+         
             foreach ($request->file('images') as $image) {
                 $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $storedPath = $image->storeAs('uploads/products', $filename, 'public');
@@ -186,9 +184,9 @@ class ProductController extends Controller
             }
         }
 
-        // ✅ Handle Product Variant if single product
+       
         if ($request->product_type === 'single') {
-            // Update if exists, otherwise create new
+          
             $variant = ProductVariant::where('product_id', $product->id)->first();
 
             if ($variant) {
@@ -222,17 +220,15 @@ public function destroy($id)
 {
     $product = Product::findOrFail($id);
 
-    // Delete associated images from storage and DB
     foreach ($product->images as $image) {
         $storagePath = str_replace('/storage/', '', $image->image);
         Storage::disk('public')->delete($storagePath);
         $image->delete();
     }
 
-    // Delete product variants
     ProductVariant::where('product_id', $product->id)->delete();
 
-    // Delete the product
+  
     $product->delete();
 
     return response()->json(['message' => 'Product deleted successfully']);
