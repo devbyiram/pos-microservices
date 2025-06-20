@@ -269,47 +269,6 @@ Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id)
     return response()->json($response->json(), $response->status());
 });
 
-
-
-
-//-----------------------------------------------------------------------------
-
-
-// Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id) {
-//     $multipart = [];
-
-//     // Add regular fields
-//     foreach ($request->except('images') as $key => $value) {
-//         $multipart[] = [
-//             'name' => $key,
-//             'contents' => $value,
-//         ];
-//     }
-
-//     // Add uploaded files
-//     if ($request->hasFile('images')) {
-//         foreach ($request->file('images') as $file) {
-//             $multipart[] = [
-//                 'name' => 'images[]',
-//                 'contents' => fopen($file->getPathname(), 'r'),
-//                 'filename' => $file->getClientOriginalName(),
-//             ];
-//         }
-//     }
-
-//     // Add method override for PUT
-//     $multipart[] = [
-//         'name' => '_method',
-//         'contents' => 'PUT',
-//     ];
-
-//     $response = Http::internal()  // ✅ Your internal request handling
-//         ->asMultipart()
-//         ->post("http://127.0.0.1:8004/api/products/{$id}", $multipart);
-
-//     return response()->json($response->json(), $response->status());
-// });
-
 Route::delete('/products/{id}', function ($id) {
     $response = Http::internal()->delete("http://127.0.0.1:8004/api/products/{$id}");
     return response()->json($response->json(), $response->status());
