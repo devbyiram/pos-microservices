@@ -333,12 +333,30 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    if (result.errors) {
-                        Object.entries(result.errors).forEach(([field, messages]) => {
-                            const errorEl = document.getElementById(`error-${field}`);
-                            if (errorEl) errorEl.innerText = messages[0];
-                        });
-                    } else {
+                   if (result.errors) {
+    // Remove all old error messages
+    document.querySelectorAll('.validation-error').forEach(el => el.remove());
+
+    Object.entries(result.errors).forEach(([field, messages]) => {
+        let input;
+
+        // Check if it's a nested field like variants.0.sku
+        const variantMatch = field.match(/^variants\.(\d+)\.(\w+)$/);
+        if (variantMatch) {
+            const [_, index, name] = variantMatch;
+            input = document.querySelector(`[name="variants[${index}][${name}]"]`);
+        } else {
+            input = document.querySelector(`[name="${field}"]`);
+        }
+
+        if (input) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger validation-error mt-1';
+            errorDiv.innerText = messages[0];
+            input.insertAdjacentElement('afterend', errorDiv);
+        }
+    });
+} else {
                         alert('Error: ' + result.message);
                     }
                 } else {

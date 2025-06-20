@@ -50,7 +50,7 @@ public function store(Request $request)
 {
     Log::info($request->all());
 
-    $validator = Validator::make($request->all(), [
+    $rules = [
         'store_id' => 'required|integer|exists:stores,id',
         'user_id' => 'required|integer|exists:users,id',
         'name' => [
@@ -67,7 +67,6 @@ public function store(Request $request)
         'status' => 'required|in:0,1',
         'images' => 'required|array',
         'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
         'product_type' => 'required|in:single,variable',
 
         // Single Variant
@@ -88,7 +87,22 @@ public function store(Request $request)
         'variants.*.tax_type' => 'nullable|in:percentage,fixed',
         'variants.*.discount' => 'nullable|numeric|min:0',
         'variants.*.discount_type' => 'nullable|in:percentage,fixed',
-    ]);
+    ];
+
+    $messages = [
+        'variants.*.sku.required' => 'The SKU field is required for each variant.',
+        'variants.*.price.required' => 'The price field is required for each variant.',
+        'variants.*.stock_quantity.required' => 'The stock quantity field is required for each variant.',
+        'variants.*.sku.max' => 'The SKU may not be greater than 255 characters.',
+        'variants.*.price.numeric' => 'The price must be a valid number.',
+        'variants.*.stock_quantity.integer' => 'The stock quantity must be an integer.',
+        'variants.*.tax.numeric' => 'The tax must be a valid number.',
+        'variants.*.tax_type.in' => 'The tax type must be either fixed or percentage.',
+        'variants.*.discount.numeric' => 'The discount must be a valid number.',
+        'variants.*.discount_type.in' => 'The discount type must be either fixed or percentage.',
+    ];
+
+    $validator = Validator::make($request->all(), $rules, $messages);
 
     if ($validator->fails()) {
         return response()->json([
