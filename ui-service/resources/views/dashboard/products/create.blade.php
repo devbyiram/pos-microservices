@@ -157,7 +157,7 @@
                                             <div class="col-lg-4">
                                                 <label for="tax_type">Tax Type</label>
                                                 <select class="form-select" name="tax_type" id="tax_type">
-                                                    <option value="" disabled selected>Select</option>
+                                                    <option value="" >Select</option>
                                                     <option value="fixed">Fixed</option>
                                                     <option value="percentage">Percentage</option>
                                                 </select>
@@ -166,7 +166,7 @@
                                             <div class="col-lg-4">
                                                 <label for="discount_type">Discount Type</label>
                                                 <select class="form-select" name="discount_type" id="discount_type">
-                                                    <option value="" disabled selected>Select</option>
+                                                    <option value="" >Select</option>
                                                     <option value="percentage">Percentage</option>
                                                     <option value="fixed">Fixed</option>
                                                 </select>
