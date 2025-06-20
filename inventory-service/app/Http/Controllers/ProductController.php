@@ -278,26 +278,40 @@ public function store(Request $request)
         $product->update($validator->validated());
 
         
-        if ($request->hasFile('images')) {
-            $productImages = ProductImage::where('product_id', $product->id)->get();
-            foreach ($productImages as $productImage) {
-                $imagePath = str_replace('/storage/', '', $productImage->image);
-                Storage::disk('public')->delete($imagePath);
-                $productImage->delete();
-            }
+ if ($request->has('existing_images')) {
+    $existingIds = $request->input('existing_images'); // array of IDs to keep
+} else {
+    $existingIds = [];
+}
 
-         
-            foreach ($request->file('images') as $image) {
-                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $storedPath = $image->storeAs('uploads/products', $filename, 'public');
-                $path = Storage::url($storedPath);
+// 🧹 Delete old images not in existing_images[]
+$productImages = ProductImage::where('product_id', $product->id)->get();
+foreach ($productImages as $productImage) {
+    if (!in_array($productImage->id, $existingIds)) {
+        $imagePath = str_replace('/storage/', '', $productImage->image);
+        Storage::disk('public')->delete($imagePath);
+        $productImage->delete();
+    }
+}
 
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image' => $path,
-                ]);
-            }
+// 📤 Handle new image uploads
+if ($request->hasFile('images')) {
+    foreach ($request->file('images') as $image) {
+        if (!$image instanceof \Illuminate\Http\UploadedFile) {
+            continue; // 👈 Prevents the "Invalid resource type: array" error
         }
+
+        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $storedPath = $image->storeAs('uploads/products', $filename, 'public');
+        $path = Storage::url($storedPath);
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image' => $path,
+        ]);
+    }
+}
+
 
        
         if ($request->product_type === 'single') {
