@@ -437,7 +437,7 @@
 
     block.innerHTML = `
         <button type="button"
-            class="btn btn-sm btn-danger position-absolute top-0 end-0 mb-2 remove-variant"
+            class="btn btn-sm btn-danger position-absolute top-0 end-0 mt-2 mr-2 mb-2 remove-variant"
             style="width: 28px; height: 28px; line-height: 18px; padding: 0; text-align: center;">
             &times;
         </button>
@@ -463,11 +463,13 @@
             <div class="col-md-12">
                 <label>
                     Attributes
-                    <button type="button"
-                        class="btn btn-sm btn-outline-primary ms-2 add-attribute-btn"
-                        data-bs-toggle="modal" data-bs-target="#addAttributeModal">
-                        +
-                    </button>
+         <button type="button"
+    class="btn btn-sm btn-outline-primary position-relative"
+    style="width: 28px; height: 28px; line-height: 18px; padding: 0; text-align: center;"
+    data-bs-toggle="modal" data-bs-target="#addAttributeModal"
+    title="Add Attribute">
+    +
+</button>
                 </label>
 
                 <div class="d-flex flex-wrap gap-3" id="attr-checkboxes-${index}">
