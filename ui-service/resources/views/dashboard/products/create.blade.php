@@ -449,6 +449,7 @@
             <div class="col-md-2"><label>Tax</label><input type="number" name="variants[${index}][tax]" class="form-control"></div>
             <div class="col-md-3"><label>Tax Type</label>
                 <select name="variants[${index}][tax_type]" class="form-select">
+                    <option value="">Select</option>
                     <option value="fixed">Fixed</option>
                     <option value="percentage">Percentage</option>
                 </select>
@@ -456,6 +457,7 @@
             <div class="col-md-3"><label>Discount</label><input type="number" name="variants[${index}][discount]" class="form-control"></div>
             <div class="col-md-3"><label>Discount Type</label>
                 <select name="variants[${index}][discount_type]" class="form-select">
+                    <option value="">Select</option>
                     <option value="fixed">Fixed</option>
                     <option value="percentage">Percentage</option>
                 </select>
