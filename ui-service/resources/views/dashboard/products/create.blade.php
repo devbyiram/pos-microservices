@@ -149,7 +149,7 @@
                                             <div class="col-lg-4">
                                                 <label for="tax_type">Tax Type</label>
                                                 <select class="form-select" name="tax_type" id="tax_type">
-                                                    <option value="">Select</option>
+                                                    <option value="" >Select</option>
                                                     <option value="fixed">Fixed</option>
                                                     <option value="percentage">Percentage</option>
                                                 </select>
@@ -158,7 +158,7 @@
                                             <div class="col-lg-4">
                                                 <label for="discount_type">Discount Type</label>
                                                 <select class="form-select" name="discount_type" id="discount_type">
-                                                    <option value="">Select</option>
+                                                    <option value="" >Select</option>
                                                     <option value="percentage">Percentage</option>
                                                     <option value="fixed">Fixed</option>
                                                 </select>
@@ -176,12 +176,11 @@
 
 
                                 <!-- ================= Variable Variant Block ================= -->
-                                <div id="variant-fields" class="mb-4" style="display: none;">
-                                    <h6 class="fw-semibold mb-3">Variants</h6>
-                                    <button type="button" class="btn btn-success mb-3" id="add-variant-block">+ Add
-                                        Variant</button>
-                                    <div id="variant-blocks" class="d-flex flex-column gap-3"></div>
-                                </div>
+ <div id="variant-fields" class="mb-4" style="display: none;">
+                                <h6 class="fw-semibold mb-3">Variants</h6>
+                                <button type="button" class="btn btn-success mb-3" id="add-variant-block">+ Add Variant</button>
+                                <div id="variant-blocks" class="d-flex flex-column gap-3"></div>
+                            </div>
 
                                 <!-- ================= Variable Variant Block End ================= -->
                                 <button type="submit" class="btn btn-primary">Create Product</button>
@@ -313,42 +312,42 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    if (result.errors) {
-                        // Remove all old error messages
-                        document.querySelectorAll('.validation-error').forEach(el => el.remove());
+                   if (result.errors) {
+    // Remove all old error messages
+    document.querySelectorAll('.validation-error').forEach(el => el.remove());
 
-                        Object.entries(result.errors).forEach(([field, messages]) => {
-                            let input;
+    Object.entries(result.errors).forEach(([field, messages]) => {
+        let input;
 
-                            // Check if it's a nested variant field (e.g. variants.0.sku)
-                            const variantMatch = field.match(/^variants\.(\d+)\.(\w+)$/);
-                            if (variantMatch) {
-                                const [_, index, name] = variantMatch;
-                                input = document.querySelector(`[name="variants[${index}][${name}]"]`);
-                            }
-                            // ✅ Handle image validation errors like images or images.0
-                            else if (field.startsWith('images')) {
-                                input = document.getElementById('images'); // file input
-                            } else {
-                                input = document.querySelector(`[name="${field}"]`);
-                            }
+        // Check if it's a nested variant field (e.g. variants.0.sku)
+        const variantMatch = field.match(/^variants\.(\d+)\.(\w+)$/);
+        if (variantMatch) {
+            const [_, index, name] = variantMatch;
+            input = document.querySelector(`[name="variants[${index}][${name}]"]`);
+        }
+        // ✅ Handle image validation errors like images or images.0
+        else if (field.startsWith('images')) {
+            input = document.getElementById('images'); // file input
+        }
+        else {
+            input = document.querySelector(`[name="${field}"]`);
+        }
 
-                            if (input) {
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'text-danger validation-error mt-1';
-                                errorDiv.innerText = messages[0];
+        if (input) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger validation-error mt-1';
+            errorDiv.innerText = messages[0];
 
-                                // If it's the image input, insert error after preview container
-                                if (field.startsWith('images')) {
-                                    const previewContainer = document.getElementById(
-                                        'image-preview-container');
-                                    previewContainer.insertAdjacentElement('afterend', errorDiv);
-                                } else {
-                                    input.insertAdjacentElement('afterend', errorDiv);
-                                }
-                            }
-                        });
-                    } else {
+            // If it's the image input, insert error after preview container
+            if (field.startsWith('images')) {
+                const previewContainer = document.getElementById('image-preview-container');
+                previewContainer.insertAdjacentElement('afterend', errorDiv);
+            } else {
+                input.insertAdjacentElement('afterend', errorDiv);
+            }
+        }
+    });
+} else {
                         alert('Error: ' + result.message);
                     }
                 } else {
@@ -361,43 +360,43 @@
         });
 
 
-        let variantAttributes = {};
+let variantAttributes = {};
 
-        // Load attributes from API
-        async function loadVariantAttributes() {
-            const res = await fetch('http://127.0.0.1:8000/api/variant-attributes');
-            const data = await res.json();
-            variantAttributes = {};
-            data.forEach(attr => {
-                if (!variantAttributes[attr.name]) {
-                    variantAttributes[attr.name] = [];
-                }
-                if (!variantAttributes[attr.name].includes(attr.value)) {
-                    variantAttributes[attr.name].push(attr.value);
-                }
-            });
+// Load attributes from API
+async function loadVariantAttributes() {
+    const res = await fetch('http://127.0.0.1:8000/api/variant-attributes');
+    const data = await res.json();
+    variantAttributes = {};
+    data.forEach(attr => {
+        if (!variantAttributes[attr.name]) {
+            variantAttributes[attr.name] = [];
         }
-        loadVariantAttributes();
+        if (!variantAttributes[attr.name].includes(attr.value)) {
+            variantAttributes[attr.name].push(attr.value);
+        }
+    });
+}
+loadVariantAttributes();
 
-        // Toggle type sections
-        const radios = document.querySelectorAll('input[name="product_type"]');
-        radios.forEach(radio => radio.addEventListener('change', () => {
-            const isVariable = document.getElementById('product_type_variable').checked;
-            document.getElementById('variant-fields').style.display = isVariable ? 'block' : 'none';
-            document.getElementById('single-product-fields').style.display = isVariable ? 'none' : 'block';
-        }));
+// Toggle type sections
+const radios = document.querySelectorAll('input[name="product_type"]');
+radios.forEach(radio => radio.addEventListener('change', () => {
+    const isVariable = document.getElementById('product_type_variable').checked;
+    document.getElementById('variant-fields').style.display = isVariable ? 'block' : 'none';
+    document.getElementById('single-product-fields').style.display = isVariable ? 'none' : 'block';
+}));
 
-        // Add Variant Block
-        const addBtn = document.getElementById('add-variant-block');
-        const container = document.getElementById('variant-blocks');
+// Add Variant Block
+const addBtn = document.getElementById('add-variant-block');
+const container = document.getElementById('variant-blocks');
 
-        addBtn.addEventListener('click', () => {
-            const index = container.children.length;
-            const attrNames = Object.keys(variantAttributes);
+addBtn.addEventListener('click', () => {
+    const index = container.children.length;
+    const attrNames = Object.keys(variantAttributes);
 
-            const block = document.createElement('div');
-            block.className = 'border rounded p-3 position-relative variant-block';
-            block.innerHTML = `
+    const block = document.createElement('div');
+    block.className = 'border rounded p-3 position-relative variant-block';
+    block.innerHTML = `
         <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-variant">&times;</button>
         <div class="row g-3">
             <div class="col-md-3"><label>SKU</label><input type="text" name="variants[${index}][sku]" class="form-control"></div>
@@ -421,44 +420,43 @@
                 <label>Attributes</label>
                 <div class="d-flex flex-wrap gap-3" id="attr-checkboxes-${index}">
                     ${attrNames.map(attr => `
-                            <label class="form-check">
-                                <input class="form-check-input variant-attr-checkbox" type="checkbox" data-attribute="${attr}" data-index="${index}"> ${attr}
-                            </label>
-                        `).join('')}
+                        <label class="form-check">
+                            <input class="form-check-input variant-attr-checkbox" type="checkbox" data-attribute="${attr}" data-index="${index}"> ${attr}
+                        </label>
+                    `).join('')}
                 </div>
             </div>
-            <div class="col-md-12" id="attr-fields-${index}"></div>
+            <div class="row g-3" id="attr-fields-${index}"></div>
         </div>
     `;
-            container.appendChild(block);
-        });
+    container.appendChild(block);
+});
 
-        // Remove variant block
-        container.addEventListener('click', e => {
-            if (e.target.classList.contains('remove-variant')) {
-                e.target.closest('.variant-block').remove();
-            }
-        });
+// Remove variant block
+container.addEventListener('click', e => {
+    if (e.target.classList.contains('remove-variant')) {
+        e.target.closest('.variant-block').remove();
+    }
+});
 
-        // Toggle custom input fields for attributes
-        container.addEventListener('change', e => {
-            if (e.target.classList.contains('variant-attr-checkbox')) {
-                const attr = e.target.dataset.attribute;
-                const index = e.target.dataset.index;
-                const container = document.getElementById(`attr-fields-${index}`);
-                const fieldName = `variants[${index}][${attr.toLowerCase()}]`;
+// Toggle custom input fields for attributes
+container.addEventListener('change', e => {
+    if (e.target.classList.contains('variant-attr-checkbox')) {
+        const attr = e.target.dataset.attribute;
+        const index = e.target.dataset.index;
+        const container = document.getElementById(`attr-fields-${index}`);
+        const fieldName = `variants[${index}][${attr.toLowerCase()}]`;
 
-                if (e.target.checked) {
-                    const div = document.createElement('div');
-                    div.className = 'mb-2';
-                    div.innerHTML =
-                        `<label>${attr}</label><input type="text" name="${fieldName}" class="form-control">`;
-                    container.appendChild(div);
-                } else {
-                    const input = container.querySelector(`[name="${fieldName}"]`);
-                    if (input) input.parentElement.remove();
-                }
-            }
-        });
+        if (e.target.checked) {
+            const div = document.createElement('div');
+            div.className = 'col-md-4 mb-2';
+            div.innerHTML = `<label>${attr}</label><input type="text" name="${fieldName}" class="form-control">`;
+            container.appendChild(div);
+        } else {
+            const input = container.querySelector(`[name="${fieldName}"]`);
+            if (input) input.parentElement.remove();
+        }
+    }
+});
     </script>
 @endsection
