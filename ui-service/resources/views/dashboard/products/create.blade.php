@@ -550,20 +550,33 @@ document.getElementById('add-attribute-form').addEventListener('submit', async f
 
             // Clear input field
             nameInput.value = '';
+await loadVariantAttributes(); // Reloads from DB
 
-          await loadVariantAttributes(); // reloads from DB
+const attrNames = Object.keys(variantAttributes);
 
-const attrNames = Object.keys(variantAttributes); // fetch latest names
+// First, collect all the checked attributes per block
+const checkedMap = {};
+document.querySelectorAll('.variant-block').forEach((block, idx) => {
+    const checked = [];
+    block.querySelectorAll('.variant-attr-checkbox:checked').forEach(input => {
+        checked.push(input.dataset.attribute);
+    });
+    checkedMap[idx] = checked;
+});
 
+// Now regenerate all checkboxes and restore checked ones
 document.querySelectorAll('.variant-block').forEach((block, idx) => {
     const checkboxContainer = document.getElementById(`attr-checkboxes-${idx}`);
     if (checkboxContainer) {
-        checkboxContainer.innerHTML = attrNames.map(attr => `
-            <label class="form-check">
-                <input class="form-check-input variant-attr-checkbox" type="checkbox"
-                    data-attribute="${attr}" data-index="${idx}"> ${attr}
-            </label>
-        `).join('');
+        checkboxContainer.innerHTML = attrNames.map(attr => {
+            const isChecked = checkedMap[idx]?.includes(attr) ? 'checked' : '';
+            return `
+                <label class="form-check">
+                    <input class="form-check-input variant-attr-checkbox" type="checkbox"
+                        data-attribute="${attr}" data-index="${idx}" ${isChecked}> ${attr}
+                </label>
+            `;
+        }).join('');
     }
 });
         } else {
