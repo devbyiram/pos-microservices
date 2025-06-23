@@ -463,9 +463,9 @@
             <div class="col-md-12">
                 <label>
                     Attributes
-         <button type="button"
-    class="btn btn-sm btn-outline-primary position-relative"
-    style="width: 28px; height: 28px; line-height: 18px; padding: 0; text-align: center;"
+       <button type="button"
+    class="btn btn-outline-primary"
+    style="width: 22px; height: 22px; font-size: 14px; line-height: 14px; padding: 0; text-align: center;"
     data-bs-toggle="modal" data-bs-target="#addAttributeModal"
     title="Add Attribute">
     +
