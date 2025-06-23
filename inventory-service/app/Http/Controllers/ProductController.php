@@ -148,37 +148,36 @@ class ProductController extends Controller
                 'discount_type' => $request->discount_type,
             ]);
         }else {
-        foreach ($request->variants as $variant) {
-            ProductVariant::create([
-                'product_id' => $product->id,
-                'sku' => $variant['sku'],
-                'price' => $variant['price'],
-                'stock_quantity' => $variant['stock_quantity'],
-                'tax' => $variant['tax'] ?? null,
-                'tax_type' => $variant['tax_type'] ?? null,
-                'discount' => $variant['discount'] ?? null,
-                'discount_type' => $variant['discount_type'] ?? null,
-            ]);
+       foreach ($request->variants as $variant) {
+    $createdVariant = ProductVariant::create([
+        'product_id' => $product->id,
+        'sku' => $variant['sku'],
+        'price' => $variant['price'],
+        'stock_quantity' => $variant['stock_quantity'],
+        'tax' => $variant['tax'] ?? null,
+        'tax_type' => $variant['tax_type'] ?? null,
+        'discount' => $variant['discount'] ?? null,
+        'discount_type' => $variant['discount_type'] ?? null,
+    ]);
 
-            // Handle dynamic attributes (Color, Size, etc.)
-            foreach ($variant as $key => $value) {
-                // Skip known variant keys
-                if (in_array($key, ['sku', 'price', 'stock_quantity', 'tax', 'tax_type', 'discount', 'discount_type'])) {
-                    continue;
-                }
-
-                // Find or create attribute
-                $attribute = VariantAttribute::firstOrCreate(['name' => $key]);
-
-                // Insert value into product_attribute_values
-                ProductAttributeValue::create([
-                    'product_id' => $product->id,
-                    'attribute_id' => $attribute->id,
-                    'value' => $value,
-                ]);
-            }
+    // ✅ Loop through custom attributes
+    foreach ($variant as $key => $value) {
+        if (in_array($key, ['sku', 'price', 'stock_quantity', 'tax', 'tax_type', 'discount', 'discount_type'])) {
+            continue;
         }
+
+        $attribute = VariantAttribute::firstOrCreate(['name' => $key]);
+
+        ProductAttributeValue::create([
+            'product_id' => $product->id,
+            'attribute_id' => $attribute->id,
+            'product_variant_id' => $createdVariant->id, // ✅ Now correct
+            'value' => $value,
+        ]);
     }
+}
+        }
+    
 
     return response()->json(['message' => 'Product created successfully'], 201);
 }
@@ -263,6 +262,10 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
+
+         DB::beginTransaction();
+
+        try{
         $product = Product::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
@@ -340,9 +343,45 @@ class ProductController extends Controller
         }
 
 
+// Clear old variants and attributes if variable
+        if ($request->product_type === 'variable') {
+            // Delete old variants and attributes
+            ProductVariant::where('product_id', $product->id)->delete();
+            ProductAttributeValue::where('product_id', $product->id)->delete();
 
-        if ($request->product_type === 'single') {
+            foreach ($request->variants as $variantData) {
+                // Create new variant
+                $variant = ProductVariant::create([
+                    'product_id' => $product->id,
+                    'sku' => $variantData['sku'],
+                    'price' => $variantData['price'],
+                    'stock_quantity' => $variantData['stock_quantity'],
+                    'tax' => $variantData['tax'] ?? null,
+                    'tax_type' => $variantData['tax_type'] ?? null,
+                    'discount' => $variantData['discount'] ?? null,
+                    'discount_type' => $variantData['discount_type'] ?? null,
+                ]);
 
+                // Save attribute values (keys not in default fields)
+                $defaultFields = ['sku', 'price', 'stock_quantity', 'tax', 'tax_type', 'discount', 'discount_type'];
+
+                foreach ($variantData as $key => $value) {
+                    if (!in_array($key, $defaultFields)) {
+                        // Get attribute_id by name
+                        $attribute = VariantAttribute::firstOrCreate(['name' => $key]);
+
+                     ProductAttributeValue::create([
+    'product_id'         => $product->id,
+    'product_variant_id' => $variant->id, // 🔥 new
+    'attribute_id'       => $attribute->id,
+    'value'              => $value
+]);
+                    }
+                }
+            }
+
+        } else {
+            // For single product
             $variant = ProductVariant::where('product_id', $product->id)->first();
 
             if ($variant) {
@@ -357,6 +396,7 @@ class ProductController extends Controller
                 ]);
             } else {
                 ProductVariant::create([
+                    'product_id' => $product->id,
                     'sku' => $request->sku,
                     'price' => $request->price,
                     'stock_quantity' => $request->stock_quantity,
@@ -368,8 +408,14 @@ class ProductController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Product updated successfully']);
+        DB::commit();
+
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error updating product: ' . $e->getMessage());
     }
+}
 
 
    public function destroy($id)

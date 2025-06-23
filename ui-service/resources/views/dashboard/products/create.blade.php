@@ -353,7 +353,8 @@
                             let input;
 
                             // Check if it's a nested variant field (e.g. variants.0.sku)
-                            const variantMatch = field.match(/^variants\.(\d+)\.(\w+)$/);
+                           const variantMatch = field.match(/^variants\.(\d+)\.([\w\-]+)$/);
+
                             if (variantMatch) {
                                 const [_, index, name] = variantMatch;
                                 input = document.querySelector(`[name="variants[${index}][${name}]"]`);

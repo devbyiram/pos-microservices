@@ -222,43 +222,57 @@ Route::post('/products', function (Request $request) {
 });
 //-----------------------------------------------------------------------------
 
-
 Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id) {
     $multipart = [];
 
-    // Add regular fields except images and existing_images
-    foreach ($request->except(['images', 'existing_images']) as $key => $value) {
+    // Add regular fields except images, existing_images, and variants
+    foreach ($request->except(['images', 'existing_images', 'variants']) as $key => $value) {
         $multipart[] = [
-            'name' => $key,
+            'name'     => $key,
             'contents' => $value,
         ];
     }
 
-    // ✅ Forward existing image IDs (important!)
+    // ✅ Forward variants as nested fields
+    if ($request->has('variants')) {
+        foreach ($request->input('variants') as $i => $variant) {
+            foreach ($variant as $vKey => $vValue) {
+                $multipart[] = [
+                    'name'     => "variants[$i][$vKey]",
+                    'contents' => $vValue,
+                ];
+            }
+        }
+    }
+
+    // ✅ Forward existing image IDs
     if ($request->has('existing_images')) {
         foreach ($request->input('existing_images') as $imageId) {
             $multipart[] = [
-                'name' => 'existing_images[]',
+                'name'     => 'existing_images[]',
                 'contents' => $imageId,
             ];
         }
     }
 
-    // ✅ Forward uploaded images
+    // ✅ Forward uploaded image files
     if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $file) {
+        foreach ($request->file('images') as $index => $file) {
             if (!$file->isValid()) continue;
             $multipart[] = [
-                'name' => 'images[]',
+                'name'     => "images[$index]",
                 'contents' => fopen($file->getPathname(), 'r'),
                 'filename' => $file->getClientOriginalName(),
+                'headers'  => [
+                    'Content-Type' => $file->getMimeType()
+                ]
             ];
         }
     }
 
-    // Add method override for PUT
+    // ✅ Add method override for PUT
     $multipart[] = [
-        'name' => '_method',
+        'name'     => '_method',
         'contents' => 'PUT',
     ];
 
@@ -268,6 +282,52 @@ Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id)
 
     return response()->json($response->json(), $response->status());
 });
+
+// Route::match(['POST', 'PUT'], '/products/{id}', function (Request $request, $id) {
+//     $multipart = [];
+
+//     // Add regular fields except images and existing_images
+//     foreach ($request->except(['images', 'existing_images']) as $key => $value) {
+//         $multipart[] = [
+//             'name' => $key,
+//             'contents' => $value,
+//         ];
+//     }
+
+//     // ✅ Forward existing image IDs (important!)
+//     if ($request->has('existing_images')) {
+//         foreach ($request->input('existing_images') as $imageId) {
+//             $multipart[] = [
+//                 'name' => 'existing_images[]',
+//                 'contents' => $imageId,
+//             ];
+//         }
+//     }
+
+//     // ✅ Forward uploaded images
+//     if ($request->hasFile('images')) {
+//         foreach ($request->file('images') as $file) {
+//             if (!$file->isValid()) continue;
+//             $multipart[] = [
+//                 'name' => 'images[]',
+//                 'contents' => fopen($file->getPathname(), 'r'),
+//                 'filename' => $file->getClientOriginalName(),
+//             ];
+//         }
+//     }
+
+//     // Add method override for PUT
+//     $multipart[] = [
+//         'name' => '_method',
+//         'contents' => 'PUT',
+//     ];
+
+//     $response = Http::internal()
+//         ->asMultipart()
+//         ->post("http://127.0.0.1:8004/api/products/{$id}", $multipart);
+
+//     return response()->json($response->json(), $response->status());
+// });
 
 Route::delete('/products/{id}', function ($id) {
     $response = Http::internal()->delete("http://127.0.0.1:8004/api/products/{$id}");

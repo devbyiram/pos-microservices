@@ -14,6 +14,7 @@ class ProductAttributeValue extends Model
     protected $fillable = [
         'product_id',
         'attribute_id',
+        'product_variant_id', //  new
         'value',
     ];
 
