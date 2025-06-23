@@ -44,9 +44,26 @@ class ProductController extends Controller
             'vendor:id,name',
             'images:id,product_id,image',
             'singlevariant:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
+            'multiplevariants:id,product_id,sku,price,stock_quantity,tax,tax_type,discount,discount_type',
+            'attributeValues.attribute:id,name',
         ])->findOrFail($id);
+    $variants = [];
+    foreach ($product->multiplevariants as $variant) {
+        $variantData = $variant->toArray(); // basic fields
 
-        return response()->json($product);
+        // Attach attributes to variant
+        foreach ($product->attributeValues as $attrVal) {
+            if ($attrVal->product_variant_id == $variant->id && $attrVal->attribute) {
+                $variantData[$attrVal->attribute->name] = $attrVal->value;
+            }
+        }
+
+        $variants[] = $variantData;
+    }
+       return response()->json([
+    'product' => $product,
+    'variants' => $variants,
+]);
     }
     //--------------------------------------------------
     public function store(Request $request)
@@ -267,7 +284,7 @@ class ProductController extends Controller
         try{
         $product = Product::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+          $rules = [
             'store_id' => 'required|integer|exists:stores,id',
             // Comment for now - Maybe will come in use later
             // 'user_id' => 'required|integer|exists:users,id',
@@ -290,18 +307,46 @@ class ProductController extends Controller
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
-            'sku' => 'required_if:product_type,single|string|max:255',
-            'price' => 'required_if:product_type,single|numeric|min:0',
-            'quantity' => 'required_if:product_type,single|integer|min:0',
-            'tax' => 'nullable|numeric|min:0',
-            'tax_type' => 'nullable|in:fixed,percentage',
-            'discount' => 'nullable|numeric|min:0',
-            'discount_type' => 'nullable|in:percentage,fixed',
+        // Single Variant Fields
+    'sku' => 'required_if:product_type,single|nullable|string|max:255',
+    'price' => 'required_if:product_type,single|nullable|numeric|min:0',
+    'quantity' => 'required_if:product_type,single|nullable|integer|min:0',
+    'tax' => 'nullable|numeric|min:0',
+    'tax_type' => 'nullable|in:percentage,fixed',
+    'discount_type' => 'nullable|in:percentage,fixed',
+    'discount_value' => 'nullable|numeric|min:0',
 
-        ]);
+    // Multiple Variant Fields
+    'variants' => 'required_if:product_type,variable|array|min:1',
+    'variants.*.sku' => 'required|string|max:255',
+    'variants.*.price' => 'required|numeric|min:0',
+    'variants.*.stock_quantity' => 'required|integer|min:0',
+    'variants.*.tax' => 'nullable|numeric|min:0',
+    'variants.*.tax_type' => 'nullable|in:percentage,fixed',
+    'variants.*.discount' => 'nullable|numeric|min:0',
+    'variants.*.discount_type' => 'nullable|in:percentage,fixed',
+];
+
+       $messages = [
+            'variants.*.sku.required' => 'The SKU field is required for each variant.',
+            'variants.*.price.required' => 'The price field is required for each variant.',
+            'variants.*.stock_quantity.required' => 'The stock quantity field is required for each variant.',
+            'variants.*.sku.max' => 'The SKU may not be greater than 255 characters.',
+            'variants.*.price.numeric' => 'The price must be a valid number.',
+            'variants.*.stock_quantity.integer' => 'The stock quantity must be an integer.',
+            'variants.*.tax.numeric' => 'The tax must be a valid number.',
+            'variants.*.tax_type.in' => 'The tax type must be either fixed or percentage.',
+            'variants.*.discount.numeric' => 'The discount must be a valid number.',
+            'variants.*.discount_type.in' => 'The discount type must be either fixed or percentage.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $product->update($validator->validated());
