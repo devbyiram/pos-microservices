@@ -187,7 +187,13 @@
 
 
                                 <!-- Add Attribute Modal -->
-<!-- Add Attribute Modal -->
+
+                                <button type="submit" class="btn btn-primary">Create Product</button>
+                                <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
+                            </form>
+
+
+                            <!-- Add Attribute Modal -->
 <div class="modal fade" id="addAttributeModal" tabindex="-1" aria-labelledby="addAttributeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow rounded">
@@ -213,9 +219,6 @@
   </div>
 </div>
                                 {{-- <-- Add Attribute Modal End --> --}}
-                                <button type="submit" class="btn btn-primary">Create Product</button>
-                                <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
-                            </form>
                         </div>
                     </div>
                 </div>

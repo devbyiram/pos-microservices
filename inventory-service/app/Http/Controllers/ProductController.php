@@ -8,8 +8,10 @@ use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use Illuminate\Validation\Rule;
+use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\ProductAttributeValue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -145,23 +147,41 @@ class ProductController extends Controller
                 'discount' => $request->discount_value,
                 'discount_type' => $request->discount_type,
             ]);
-        } else {
-            foreach ($request->variants as $variant) {
-                ProductVariant::create([
+        }else {
+        foreach ($request->variants as $variant) {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'sku' => $variant['sku'],
+                'price' => $variant['price'],
+                'stock_quantity' => $variant['stock_quantity'],
+                'tax' => $variant['tax'] ?? null,
+                'tax_type' => $variant['tax_type'] ?? null,
+                'discount' => $variant['discount'] ?? null,
+                'discount_type' => $variant['discount_type'] ?? null,
+            ]);
+
+            // Handle dynamic attributes (Color, Size, etc.)
+            foreach ($variant as $key => $value) {
+                // Skip known variant keys
+                if (in_array($key, ['sku', 'price', 'stock_quantity', 'tax', 'tax_type', 'discount', 'discount_type'])) {
+                    continue;
+                }
+
+                // Find or create attribute
+                $attribute = VariantAttribute::firstOrCreate(['name' => $key]);
+
+                // Insert value into product_attribute_values
+                ProductAttributeValue::create([
                     'product_id' => $product->id,
-                    'sku' => $variant['sku'],
-                    'price' => $variant['price'],
-                    'stock_quantity' => $variant['stock_quantity'],
-                    'tax' => $variant['tax'] ?? null,
-                    'tax_type' => $variant['tax_type'] ?? null,
-                    'discount' => $variant['discount'] ?? null,
-                    'discount_type' => $variant['discount_type'] ?? null,
+                    'attribute_id' => $attribute->id,
+                    'value' => $value,
                 ]);
             }
         }
-
-        return response()->json(['message' => 'Product created successfully'], 201);
     }
+
+    return response()->json(['message' => 'Product created successfully'], 201);
+}
 
 
 
