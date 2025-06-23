@@ -20,27 +20,41 @@
                             <form id="create-vendor-form">
                                 @csrf
                                 <div class="form-group mb-3">
-                                    <label for="name">Vendor Name</label>
-                                    <input type="text" class="form-control" name="name" id="name">
-                                    <div class="text-danger" id="error-name"></div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="name">Vendor Name</label>
+                                                <input type="text" class="form-control" name="name" id="name">
+                                                <div class="text-danger" id="error-name"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="email">Email</label>
+                                                <input type="email" class="form-control" name="email" id="email">
+                                                <div class="text-danger" id="error-email"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control" name="email" id="email">
-                                    <div class="text-danger" id="error-email"></div>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="phone">Phone</label>
-                                    <input type="text" class="form-control" name="phone" id="phone">
-                                    <div class="text-danger" id="error-phone"></div>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="address">Address</label>
-                                    <textarea class="form-control" name="address" id="address"></textarea>
-                                    <div class="text-danger" id="error-address"></div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="phone">Phone</label>
+                                                <input type="text" class="form-control" name="phone" id="phone">
+                                                <div class="text-danger" id="error-phone"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="address">Address</label>
+                                                <textarea class="form-control" name="address" id="address"></textarea>
+                                                <div class="text-danger" id="error-address"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group mb-3">

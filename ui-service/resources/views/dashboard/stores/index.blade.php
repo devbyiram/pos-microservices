@@ -48,12 +48,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Store</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this store?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
     @parent
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let storeIdToDelete = null;
+
             const tbody = document.getElementById('stores-table-body');
             const successMessage = document.getElementById('success-message');
             const successText = document.getElementById('success-text');
@@ -107,7 +129,7 @@
                                 {{-- <td>${creatorName}</td> --}}
                                 <td>
                                     <a href="/stores/edit/${store.id}" class="btn btn-sm btn-primary">Edit</a>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteStore(${store.id})">Delete</button>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDelete(${store.id})">Delete</button>
                                 </td>
                             `;
                             tbody.appendChild(row);
@@ -119,8 +141,17 @@
                     });
             }
 
-            window.deleteStore = function (storeId) {
-                fetch(`http://127.0.0.1:8000/api/stores/${storeId}`, {
+            // Show delete confirmation modal
+            window.confirmDelete = function (id) {
+                storeIdToDelete = id;
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            }
+
+            document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+                if (!storeIdToDelete) return;
+
+                fetch(`http://127.0.0.1:8000/api/stores/${storeIdToDelete}`, {
                         method: 'DELETE',
                         headers: {
                             'Accept': 'application/json',
@@ -134,6 +165,8 @@
                         })))
                     .then(({ status, body }) => {
                         if (status === 200) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                            modal.hide();
                             loadStores();
                             showSuccess('Store deleted successfully!');
                         } else {
@@ -143,7 +176,7 @@
                     .catch(error => {
                         console.error('Error deleting store:', error);
                     });
-            };
+            });
 
             // Initial load
             loadStores();

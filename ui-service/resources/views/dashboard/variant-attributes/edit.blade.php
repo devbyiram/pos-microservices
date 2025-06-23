@@ -29,16 +29,6 @@
                                 <div class="text-danger" id="error-value"></div>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label for="status">Status</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="" disabled selected>Select status</option>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                                <div class="text-danger" id="error-status"></div>
-                            </div>
-
                             <button type="submit" class="btn btn-primary">Update Variant Attribute</button>
                             <a href="{{ route('variant-attributes.index') }}" class="btn btn-secondary">Cancel</a>
                         </form>
@@ -69,7 +59,6 @@
             const data = await res.json();
             document.getElementById('name').value = data.name;
             document.getElementById('value').value = data.value;
-            document.getElementById('status').value = data.status;
         } catch (err) {
             console.error('Failed to load variant attribute:', err);
             alert('Failed to load variant attribute data.');
@@ -81,13 +70,12 @@
     document.getElementById('edit-variant-attribute-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        ['name', 'value', 'status'].forEach(field => {
+        ['name', 'value'].forEach(field => {
             document.getElementById(`error-${field}`).innerText = '';
         });
 
         const formData = new FormData(this);
         const jsonData = Object.fromEntries(formData.entries());
-        jsonData.status = $('#status').val();
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/variant-attributes/${variantAttributeId}`, {

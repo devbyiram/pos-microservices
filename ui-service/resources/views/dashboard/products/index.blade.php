@@ -53,6 +53,26 @@
 
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Product</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this product?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
@@ -60,6 +80,8 @@
     <script>
          const baseImageUrl = "{{ $base_image_url }}";
         document.addEventListener('DOMContentLoaded', function() {
+            let productIdToDelete = null;
+
             const tbody = document.getElementById('products-table-body');
             const successMessage = document.getElementById('success-message');
             const successText = document.getElementById('success-text');
@@ -115,7 +137,7 @@
                         <td><span class="badge bg-${product.status == 1 ? 'success' : 'secondary'}">${product.status == 1 ? 'Active' : 'Inactive'}</span></td>
                         <td>
                             <a href="/products/edit/${product.id}" class="btn btn-sm btn-primary">Edit</a>
-                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">Delete</button>
+                            <button class="btn btn-sm btn-danger" onclick="confirmDelete(${product.id})">Delete</button>
                         </td>
                     `;
                             tbody.appendChild(row);
@@ -128,8 +150,17 @@
                     });
             }
 
-            window.deleteProduct = function(productId) {
-                fetch(`http://127.0.0.1:8000/api/products/${productId}`, {
+            // Show delete confirmation modal
+            window.confirmDelete = function (id) {
+                productIdToDelete = id;
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            }
+
+            document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+                if (!productIdToDelete) return;
+
+                fetch(`http://127.0.0.1:8000/api/products/${productIdToDelete}`, {
                         method: 'DELETE',
                         headers: {
                             'Accept': 'application/json',
@@ -146,6 +177,8 @@
                         body
                     }) => {
                         if (status === 200) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                            modal.hide();
                             loadProducts();
                             showSuccess('Product deleted successfully!');
                         } else {
@@ -155,7 +188,7 @@
                     .catch(error => {
                         console.error('Error deleting product:', error);
                     });
-            };
+            });
 
             loadProducts();
         });

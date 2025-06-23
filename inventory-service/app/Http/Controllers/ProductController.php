@@ -53,7 +53,8 @@ class ProductController extends Controller
 
         $rules = [
             'store_id' => 'required|integer|exists:stores,id',
-            'user_id' => 'required|integer|exists:users,id',
+            // Comment for now - Maybe will come in use later
+            // 'user_id' => 'required|integer|exists:users,id',
             'name' => [
                 'required',
                 'string',
@@ -246,7 +247,8 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'store_id' => 'required|integer|exists:stores,id',
-            'user_id' => 'required|integer|exists:users,id',
+            // Comment for now - Maybe will come in use later
+            // 'user_id' => 'required|integer|exists:users,id',
             'name' => [
                 'required',
                 'string',

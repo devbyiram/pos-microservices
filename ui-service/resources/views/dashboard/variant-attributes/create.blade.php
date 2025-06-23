@@ -32,16 +32,6 @@
                                 <div class="text-danger" id="error-value"></div>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label for="status">Status</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="" disabled selected>Select status</option>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                                <div class="text-danger" id="error-status"></div>
-                            </div>
-
                             <button type="submit" class="btn btn-primary">Create Variant Attribute</button>
                             <button type="reset" class="btn btn-secondary">Cancel</button>
                         </form>
@@ -60,7 +50,7 @@
     document.getElementById('create-variant-attribute-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        ['name', 'value', 'status'].forEach(f => document.getElementById(`error-${f}`).innerText = '');
+        ['name', 'value'].forEach(f => document.getElementById(`error-${f}`).innerText = '');
 
         const formData = new FormData(this);
         const jsonData = Object.fromEntries(formData.entries());
@@ -87,7 +77,6 @@
                 document.getElementById('success-message').classList.remove('d-none');
                 this.reset();
                 setTimeout(() => document.getElementById('success-message').classList.add('d-none'), 5000);
-                document.getElementById('status').value = '';
             } else {
                 alert('Error: ' + (result.message || 'Something went wrong.'));
             }

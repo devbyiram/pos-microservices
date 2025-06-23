@@ -31,7 +31,6 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>Value</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -49,12 +48,33 @@
 
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="deleteModalLabel">Delete Variant Attribute</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              Are you sure you want to delete this variant attribute?
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+          </div>
+      </div>
+    </div>
+</div>
 @endsection
 
 @section('js')
 @parent
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        let attributeIdToDelete = null;
+
         const tbody = document.getElementById('variant-attributes-table-body');
         const successMessage = document.getElementById('success-message');
         const successText = document.getElementById('success-text');
@@ -95,10 +115,9 @@
                         <td>${attribute.id}</td>
                         <td>${attribute.name}</td>
                         <td>${attribute.value}</td>
-                        <td><span class="badge bg-${attribute.status == 1 ? 'success' : 'secondary'}">${attribute.status == 1 ? 'Active' : 'Inactive'}</span></td>
                         <td>
                             <a href="/variant-attributes/edit/${attribute.id}" class="btn btn-sm btn-primary">Edit</a>
-                            <button class="btn btn-sm btn-danger" onclick="deleteAttribute(${attribute.id})">Delete</button>
+                            <button class="btn btn-sm btn-danger" onclick="confirmDelete(${attribute.id})">Delete</button>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -110,8 +129,17 @@
             });
         }
 
-        window.deleteAttribute = function (id) {
-            fetch(`http://127.0.0.1:8000/api/variant-attributes/${id}`, {
+        // Show delete confirmation modal
+        window.confirmDelete = function (id) {
+            attributeIdToDelete = id;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+            if (!attributeIdToDelete) return;
+
+            fetch(`http://127.0.0.1:8000/api/variant-attributes/${attributeIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -125,6 +153,8 @@
                 })))
             .then(({ status, body }) => {
                 if (status === 200) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                    modal.hide();
                     loadVariantAttributes();
                     showSuccess('Variant attribute deleted successfully!');
                 } else {
@@ -134,7 +164,7 @@
             .catch(error => {
                 console.error('Error deleting variant attribute:', error);
             });
-        };
+        });
 
         loadVariantAttributes();
     });

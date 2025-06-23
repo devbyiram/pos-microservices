@@ -17,39 +17,53 @@
                                 @csrf
                                 <input type="hidden" id="purchase_id" value="{{ $purchase_id }}">
 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="store_id">Store</label>
-                                        <select class="form-select" id="store_id" name="store_id"></select>
-                                        <div class="text-danger" id="error-store_id"></div>
-                                    </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="store_id">Store</label>
+                                                <select class="form-select" id="store_id" name="store_id"></select>
+                                                <div class="text-danger" id="error-store_id"></div>
+                                            </div>
+                                        </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="vendor_id">Vendor</label>
-                                        <select class="form-select" id="vendor_id" name="vendor_id"></select>
-                                        <div class="text-danger" id="error-vendor_id"></div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="vendor_id">Vendor</label>
+                                                <select class="form-select" id="vendor_id" name="vendor_id"></select>
+                                                <div class="text-danger" id="error-vendor_id"></div>
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="purchase_date">Purchase Date</label>
-                                        <input type="date" class="form-control" id="purchase_date" name="purchase_date">
-                                        <div class="text-danger" id="error-purchase_date"></div>
-                                    </div>
+                                <div class="form-group mb-3">
+                                    <label for="purchase_date">Purchase Date</label>
+                                    <input type="date" class="form-control" id="purchase_date" name="purchase_date">
+                                    <div class="text-danger" id="error-purchase_date"></div>
+                                </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="status">Status</label>
-                                        <select class="form-select" id="status" name="status">
-                                            <option value="Pending">Pending</option>
-                                            <option value="Received">Received</option>
-                                        </select>
-                                    </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="status">Status</label>
+                                                <select class="form-select" id="status" name="status">
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Received">Received</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="payment_status">Payment Status</label>
-                                        <select class="form-select" id="payment_status" name="payment_status">
-                                            <option value="Unpaid">Unpaid</option>
-                                            <option value="Paid">Paid</option>
-                                        </select>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="payment_status">Payment Status</label>
+                                                <select class="form-select" id="payment_status" name="payment_status">
+                                                    <option value="Unpaid">Unpaid</option>
+                                                    <option value="Paid">Paid</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

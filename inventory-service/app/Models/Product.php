@@ -44,4 +44,9 @@ class Product extends Model
     public function multiplevariants(){
         return $this->hasMany(ProductVariant::class);
     }
+
+    public function attributeValues()
+{
+    return $this->hasMany(ProductAttributeValue::class);
+}
 }

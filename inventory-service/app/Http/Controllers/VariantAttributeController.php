@@ -20,7 +20,6 @@ class VariantAttributeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
             'value' => 'required|string|max:100',
-            'status' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -53,7 +52,6 @@ class VariantAttributeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:100',
             'value' => 'sometimes|string|max:100',
-            'status' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {

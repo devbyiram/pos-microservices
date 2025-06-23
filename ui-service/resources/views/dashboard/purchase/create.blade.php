@@ -18,19 +18,27 @@
                     <form id="create-purchase-form">
                         @csrf
                         <div class="form-group mb-3">
-                            <label for="store_id">Store</label>
-                            <select class="form-select" id="store_id" name="store_id">
-                                <option value="" disabled selected>Select Store</option>
-                            </select>
-                            <div class="text-danger" id="error-store_id"></div>
-                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="store_id">Store</label>
+                                        <select class="form-select" id="store_id" name="store_id">
+                                            <option value="" disabled selected>Select Store</option>
+                                        </select>
+                                        <div class="text-danger" id="error-store_id"></div>
+                                    </div>
+                                </div>
 
-                        <div class="form-group mb-3">
-                            <label for="vendor_id">Vendor</label>
-                            <select class="form-select" id="vendor_id" name="vendor_id">
-                                <option value="" disabled selected>Select Vendor</option>
-                            </select>
-                            <div class="text-danger" id="error-vendor_id"></div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="vendor_id">Vendor</label>
+                                        <select class="form-select" id="vendor_id" name="vendor_id">
+                                            <option value="" disabled selected>Select Vendor</option>
+                                        </select>
+                                        <div class="text-danger" id="error-vendor_id"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mb-3">
@@ -39,22 +47,29 @@
                             <div class="text-danger" id="error-purchase_date"></div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="status">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="Received">Received</option>
-                                <option value="Pending">Pending</option>
-                            </select>
-                            <div class="text-danger" id="error-status"></div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="payment_status">Payment Status</label>
-                            <select class="form-select" id="payment_status" name="payment_status">
-                                <option value="Paid">Paid</option>
-                                <option value="Unpaid">Unpaid</option>
-                            </select>
-                            <div class="text-danger" id="error-payment_status"></div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="status">Status</label>
+                                        <select class="form-select" id="status" name="status">
+                                            <option value="Received">Received</option>
+                                            <option value="Pending">Pending</option>
+                                        </select>
+                                        <div class="text-danger" id="error-status"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="payment_status">Payment Status</label>
+                                        <select class="form-select" id="payment_status" name="payment_status">
+                                            <option value="Paid">Paid</option>
+                                            <option value="Unpaid">Unpaid</option>
+                                        </select>
+                                        <div class="text-danger" id="error-payment_status"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <h5 class="mt-4">Purchase Items</h5>

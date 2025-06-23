@@ -55,12 +55,34 @@
 
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Purchase</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this purchase?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
     @parent
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let purchaseIdToDelete = null;
+
             const tbody = document.getElementById('purchases-table-body');
             const successMessage = document.getElementById('success-message');
             const successText = document.getElementById('success-text');
@@ -127,7 +149,7 @@
                                 <td><span class="badge bg-${paymentStatusColor}">${purchase.payment_status || 'N/A'}</span></td>
                                 <td>
                                     <a href="/purchases/edit/${purchase.id}" class="btn btn-sm btn-primary">Edit</a>
-                                    <button class="btn btn-sm btn-danger" onclick="deletePurchase(${purchase.id})">Delete</button>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDelete(${purchase.id})">Delete</button>
                                 </td>
                             `;
                             tbody.appendChild(row);
@@ -139,8 +161,17 @@
                     });
             }
 
-            window.deletePurchase = function (purchaseId) {
-                fetch(`http://127.0.0.1:8000/api/purchases/${purchaseId}`, {
+            // Show delete confirmation modal
+            window.confirmDelete = function (id) {
+                purchaseIdToDelete = id;
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            }
+
+            document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+                if (!purchaseIdToDelete) return;
+
+                fetch(`http://127.0.0.1:8000/api/purchases/${purchaseIdToDelete}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',
@@ -154,6 +185,8 @@
                         })))
                     .then(({ status, body }) => {
                         if (status === 200) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                            modal.hide();
                             loadPurchases();
                             showSuccess('Purchase deleted successfully!');
                         } else {
@@ -163,7 +196,7 @@
                     .catch(error => {
                         console.error('Error deleting purchase:', error);
                     });
-            };
+            });
 
             loadPurchases();
         });

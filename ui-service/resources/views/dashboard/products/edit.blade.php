@@ -41,12 +41,6 @@
                                         </div>
 
                                         <div class="col-lg-4">
-                                            <label for="user_id">User</label>
-                                            <select class="form-select" name="user_id" id="user_id"></select>
-                                            <div class="text-danger" id="error-user_id"></div>
-                                        </div>
-
-                                        <div class="col-lg-4">
                                             <label for="category_id">Category</label>
                                             <select class="form-select" name="category_id" id="category_id"></select>
                                             <div class="text-danger" id="error-category_id"></div>
@@ -316,7 +310,8 @@
 
             await Promise.all([
                 populateDropdown('http://127.0.0.1:8000/api/stores', 'store_id', product.store_id),
-                populateDropdown('http://127.0.0.1:8000/api/users', 'user_id', product.user_id),
+                // Comment for now - Maybe will come in use later
+                // populateDropdown('http://127.0.0.1:8000/api/users', 'user_id', product.user_id),
                 populateDropdown('http://127.0.0.1:8000/api/categories', 'category_id', product.category_id),
                 populateDropdown('http://127.0.0.1:8000/api/brands', 'brand_id', product.brand_id),
                 populateDropdown('http://127.0.0.1:8000/api/vendors', 'vendor_id', product.vendor_id)
