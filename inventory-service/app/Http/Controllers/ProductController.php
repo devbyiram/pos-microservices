@@ -76,26 +76,25 @@ class ProductController extends Controller
             'images' => 'required|array',
             'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'product_type' => 'required|in:single,variable',
+// Single Variant Fields
+    'sku' => 'required_if:product_type,single|nullable|string|max:255',
+    'price' => 'required_if:product_type,single|nullable|numeric|min:0',
+    'quantity' => 'required_if:product_type,single|nullable|integer|min:0',
+    'tax' => 'nullable|numeric|min:0',
+    'tax_type' => 'nullable|in:percentage,fixed',
+    'discount_type' => 'nullable|in:percentage,fixed',
+    'discount_value' => 'nullable|numeric|min:0',
 
-            // Single Variant
-            'sku' => 'required_if:product_type,single|string|max:255',
-            'price' => 'required_if:product_type,single|numeric|min:0',
-            'quantity' => 'required_if:product_type,single|integer|min:0',
-            'tax' => 'nullable|numeric|min:0',
-            'tax_type' => 'nullable|in:percentage,fixed',
-            'discount_type' => 'nullable|in:percentage,fixed',
-            'discount_value' => 'nullable|numeric|min:0',
-
-            // Multiple Variants
-            'variants' => 'required_if:product_type,variable|array',
-            'variants.*.sku' => 'required|string|max:255',
-            'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.stock_quantity' => 'required|integer|min:0',
-            'variants.*.tax' => 'nullable|numeric|min:0',
-            'variants.*.tax_type' => 'nullable|in:percentage,fixed',
-            'variants.*.discount' => 'nullable|numeric|min:0',
-            'variants.*.discount_type' => 'nullable|in:percentage,fixed',
-        ];
+    // Multiple Variant Fields
+    'variants' => 'required_if:product_type,variable|array|min:1',
+    'variants.*.sku' => 'required|string|max:255',
+    'variants.*.price' => 'required|numeric|min:0',
+    'variants.*.stock_quantity' => 'required|integer|min:0',
+    'variants.*.tax' => 'nullable|numeric|min:0',
+    'variants.*.tax_type' => 'nullable|in:percentage,fixed',
+    'variants.*.discount' => 'nullable|numeric|min:0',
+    'variants.*.discount_type' => 'nullable|in:percentage,fixed',
+];
 
         $messages = [
             'variants.*.sku.required' => 'The SKU field is required for each variant.',
