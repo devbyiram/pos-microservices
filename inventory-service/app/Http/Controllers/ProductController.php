@@ -178,7 +178,7 @@ return response()->json($product);
                     'discount_type' => $variant['discount_type'] ?? null,
                 ]);
 
-                // ✅ Loop through custom attributes
+                //  Loop through custom attributes
                 foreach ($variant as $key => $value) {
                     if (in_array($key, ['sku', 'price', 'stock_quantity', 'tax', 'tax_type', 'discount', 'discount_type'])) {
                         continue;
@@ -293,7 +293,7 @@ return response()->json($product);
                 }
             }
 
-            // 📤 Handle new image uploads
+            //  Handle new image uploads
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     if (!$image instanceof \Illuminate\Http\UploadedFile) {
