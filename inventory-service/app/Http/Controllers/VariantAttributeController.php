@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class VariantAttributeController extends Controller
 {
-    // Get all variant attributes
+   
     public function index()
     {
         return response()->json(VariantAttribute::all());
     }
 
-    // Store new variant attribute
+ 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
